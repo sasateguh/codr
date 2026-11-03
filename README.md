@@ -3,9 +3,9 @@
 <h1 align="center">Codr</h1>
 
 <p align="center"><b>Your code, on your own machine.</b> · <i>Kod anda, di mesin anda.</i><br>
-<a href="https://codr.my">codr.my</a> · <a href="https://git.codr.my/aiman/contoh">live example</a> · <a href="docs/design.md">design</a> · <a href="LICENSE">AGPL-3.0</a> · Built in Malaysia by <a href="https://aimanmalib.com">Aiman Malib</a> · <a href="https://sasateguh.com">Sasa Teguh</a></p>
+<a href="https://codr.my">codr.my</a> · <a href="https://git.codr.my/aiman/contoh">live example</a> · <a href="docs/design.md">design</a> · <a href="LICENSE">AGPL-3.0-or-later</a> · Built in Malaysia by <a href="https://aimanmalib.com">Aiman Malib</a> · <a href="https://sasateguh.com">Sasa Teguh</a></p>
 
-<p align="center"><img src="internal/web/static/produk/pr-cerah-en.webp" width="860" alt="A Codr pull request: discussion, checks and the merge box"></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="internal/web/static/produk/pr-gelap-en.webp"><img src="internal/web/static/produk/pr-cerah-en.webp" width="860" alt="A Codr pull request: discussion, checks and the merge box"></picture></p>
 
 Codr is a self-hosted git forge in one Go binary. Your repositories stay plain bare git repositories on disk next to one
 SQLite file, so you can always clone straight from the data folder, even with the server stopped. The interface is in
@@ -30,23 +30,47 @@ English and Malay, in light and dark, and works on a phone.
 | **CI** | `codr-runner` runs `.codr/ci.toml` jobs on every push in containers with no network; results show as checks, and a protected branch can wait for them ([guide](docs/ci.md)) |
 | **Integrations** | REST API with an OpenAPI description, signed webhooks that refuse private addresses, commit statuses, mirrors from GitHub or any URL with their issues and pull requests |
 | **Accounts** | SSH keys and scoped tokens, two-step sign-in with recovery codes, signed-in browser list, optional OpenID Connect sign-in |
-| **Your data** | Nightly backup with a restore drill, optional encrypted copy in your own S3, R2 or B2 bucket, a data report, and a personal export for every user |
+| **Your data** | `codr backup` takes a consistent snapshot while the server runs and `codr restore` rebuilds an identical install (schedule it with cron or a systemd timer); optional scheduled, encrypted copies in your own S3, R2 or B2 bucket, each downloaded again and verified; a data report and a personal export for every user |
 | **AI, if you want it** | Pull request summaries and review notes from a model endpoint you choose. Off until you turn it on, per repository |
 
 ## Quick start
 
-You need Linux, Go to build, and git 2.38 or newer. Docker only if you run CI.
+You need Linux (amd64 or arm64) and git 2.40 or newer. Docker only if you run CI.
 
 ```sh
-go build -o codr ./cmd/codr && sudo install codr /usr/local/bin/
+# 1. the binary: from the latest release (check it against SHA256SUMS on the release page)
+curl -fLO https://github.com/sasateguh/codr/releases/latest/download/codr-linux-amd64
+sudo install codr-linux-amd64 /usr/local/bin/codr
+# 2. a data folder you own
+sudo mkdir -p /srv/codr && sudo chown "$USER" /srv/codr
 codr init --dir /srv/codr && cd /srv/codr
+# 3. an admin, then the servers
 printf 'a-long-password\n' | codr admin user add you --admin
-codr serve                       # SSH :2222 + HTTP :3000 (see config.toml)
+codr serve                       # SSH 127.0.0.1:2222 + HTTP 127.0.0.1:3000
 ```
 
-Then open `http://localhost:3000`, sign in, and add an SSH key or a token under your account. `codr doctor` checks the
-config, database, git, hooks, keys and disk space, one line per check. CI is optional: build `./cmd/codr-runner` and follow
-[docs/ci.md](docs/ci.md).
+Then open `http://localhost:3000`, sign in, and add an SSH key or a token under your account. Addresses live in
+`config.toml` under `[server]`: `http_addr` / `http_host` and `ssh_addr` / `ssh_host`. `codr doctor` checks the config,
+database, git version, hooks, keys and disk space, one line per check. CI is optional: take `codr-runner` from the same
+release and follow [docs/ci.md](docs/ci.md).
+
+**From source** (Go 1.27 or newer): `git clone https://github.com/sasateguh/codr && cd codr && go build -o codr ./cmd/codr`,
+or `go install codr.my/codr/cmd/codr@latest`. `scripts/build-release.sh vX.Y.Z` builds the release binaries byte for byte.
+
+## Codr and other forges
+
+Codr is for one person or a small team who want a forge they can read end to end. [Gitea](https://about.gitea.com) and
+[Forgejo](https://forgejo.org) do much more, and are the better choice if you need it.
+
+| | Codr | Gitea / Forgejo |
+|---|---|---|
+| Install | one Go binary + git | one Go binary + git |
+| Database | SQLite only | SQLite, MySQL, PostgreSQL and others |
+| CI | `codr-runner`, jobs with no network by default | Actions-compatible runner and a large catalogue of actions |
+| Packages, registries | no | yes |
+| Federation | no | in progress (Forgejo) |
+| Interface languages | English and Malay, both complete | many languages |
+| Licence | AGPL-3.0-or-later | MIT (Gitea), GPL-3.0-or-later (Forgejo) |
 
 ## How it is built
 
@@ -56,7 +80,7 @@ The gate (`scripts/gate.sh`) runs gofmt, vet, staticcheck, gosec, govulncheck, t
 Chromium and WebKit (iPhone 13) with axe accessibility checks in both themes. A release is only deployed from a tree that
 passed the whole gate.
 
-Read more: [design in one page](docs/design.md) · [CI guide](docs/ci.md) · [contributing](CONTRIBUTING.md) · [security](SECURITY.md) · [licence](LICENSE)
+Read more: [design in one page](docs/design.md) · [CI guide](docs/ci.md) · [changelog](CHANGELOG.md) · [contributing](CONTRIBUTING.md) · [security](SECURITY.md) · [licence](LICENSE)
 
 ## Bahasa Melayu
 
@@ -72,7 +96,7 @@ dan Inggeris, tema cerah dan gelap, dan selesa di telefon.
 Ciri: kod (sejarah, jejak baris, carian, LFS, wiki), isu dan pull request (penerima, semakan, ulasan baris, gabung/squash/rebase,
 `fixes #12`), organisasi dan pasukan, fork, pemberitahuan loceng dan emel, CI `codr-runner` dalam kontena tanpa rangkaian
 ([panduan](docs/panduan-ci.md)), API REST + OpenAPI, webhook bertandatangan, cermin GitHub, log masuk dua langkah dan OpenID Connect,
-backup malam dengan latihan pulih, salinan awan bersulit, laporan data dan eksport peribadi, serta AI pilihan yang mati secara lalai.
+`codr backup` dan `codr restore`, salinan awan bersulit berjadual, laporan data dan eksport peribadi, serta AI pilihan yang mati secara lalai.
 Reka bentuk dalam satu halaman: [docs/reka-bentuk.md](docs/reka-bentuk.md).
 
 ## Licence
@@ -81,4 +105,6 @@ Codr is free software under the [GNU Affero General Public License v3.0 or later
 host it, including for your company. If you change the server and let other people use it over a network, share your
 changes with them under the same licence. For other terms, write to admin@sasateguh.com.
 
-Made by [Aiman Malib](https://aimanmalib.com) at [Sasa Teguh](https://sasateguh.com), Malaysia.
+Made by [Aiman Malib](https://aimanmalib.com) at [Sasa Teguh](https://sasateguh.com), Malaysia. Codr was developed in a
+private repository from October 2026 and has hosted its author's own code since then; this public repository starts at
+v2.29.0 with one squashed commit, so the history before that is not here. See the [changelog](CHANGELOG.md).

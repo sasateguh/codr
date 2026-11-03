@@ -96,7 +96,7 @@ func TestLanding(t *testing.T) {
 	}
 
 	// settings drive the links; unsafe values are dropped
-	for k, v := range map[string]string{"landing.index": "true", "landing.demo_repo": "alice/awam", "landing.contact_email": "hai@amcd.my",
+	for k, v := range map[string]string{"landing.index": "true", "landing.demo_repo": "alice/awam", "landing.contact_email": "hello@example.invalid",
 		"landing.source_url": "javascript:alert(1)", "landing.forge_url": "https://forge.example.my/"} {
 		if err := h.st.SetSetting(ctx, k, v, h.users["alice"].ID); err != nil {
 			t.Fatal(k, err)
@@ -106,7 +106,7 @@ func TestLanding(t *testing.T) {
 	if strings.Contains(body, "noindex") || resp.Header.Get("X-Robots-Tag") != "" {
 		t.Fatal("landing.index=true must drop noindex")
 	}
-	for _, want := range []string{`href="https://forge.example.my/alice/awam"`, `href="mailto:hai@amcd.my"`, "running at forge.example.my today", "git clone https://forge.example.my/alice/awam.git"} {
+	for _, want := range []string{`href="https://forge.example.my/alice/awam"`, `href="mailto:hello@example.invalid"`, "running at forge.example.my today", "git clone https://forge.example.my/alice/awam.git"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("landing with settings lacks %q", want)
 		}

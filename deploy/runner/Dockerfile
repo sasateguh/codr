@@ -1,8 +1,8 @@
-# codr-runner image (D89). The binary is built on the host by deploy/deploy.sh like codr's. It needs git (fetch the
+# codr-runner image (D89). The binary is built first by scripts/build-release.sh like codr's. It needs git (fetch the
 # pushed commit) and the docker CLI (start one locked-down container per job on the host's daemon through the mounted
 # socket). Runs as uid 1000; deploy.sh adds the socket's group.
 FROM alpine:3.22
-# apk upgrade: take fixed Alpine packages even when the cached base image is older (Perisai CD-01, D107).
+# apk upgrade: take fixed Alpine packages even when the cached base image is older (D107).
 RUN apk upgrade --no-cache && apk add --no-cache git docker-cli ca-certificates tzdata \
  && adduser -D -u 1000 -h /home/runner runner \
  && mkdir -p /etc/codr-runner && chown runner:runner /etc/codr-runner

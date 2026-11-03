@@ -22,7 +22,19 @@ OUT = ROOT / ".scratch" / "pelayar"
 try:
     from playwright.sync_api import sync_playwright
 except ImportError:
-    print("langkau: playwright python tiada"); sys.exit(0)
+    # a missing browser must not read as a pass: gate.sh skips this step only with CODR_SKIP_BROWSER=1
+    print("Python Playwright not found: pip install playwright && playwright install chromium webkit"); sys.exit(1)
+
+def tangkap_penuh(page, path):
+    """Full-page screenshot, cut at the engine limit (32767 device px). The checks above ran on the whole page;
+    a landing page taller than ~10,900 CSS px on an iPhone (3x) used to crash the gate here (D111)."""
+    h = page.evaluate("document.documentElement.scrollHeight")
+    dpr = page.evaluate("window.devicePixelRatio") or 1
+    w = page.evaluate("document.documentElement.clientWidth")
+    if h * dpr <= 32000:
+        page.screenshot(path=path, full_page=True)
+    else:
+        page.screenshot(path=path, full_page=True, clip={"x": 0, "y": 0, "width": w, "height": int(32000 / dpr)})
 
 bad = []
 # Semakan yang tangkapan skrin v2.14.0 tunjuk tetapi gerbang terlepas (D78): mesej yang diberi hujah salah ("%!(EXTRA"),
@@ -245,7 +257,7 @@ def main():
                     if vio: fail(f"{label}: axe {[(v['id'], v['nodes'][0]['target'], v['nodes'][0]['any'][0].get('data')) for v in vio]}")
                     name = "pendaratan" + ("-ms" if path == "/ms" else "")
                     shot.goto(landing + path, wait_until="load"); shot.wait_for_timeout(1900)
-                    shot.screenshot(path=str(OUT / f"{name}--{engine}-{device.replace(' ', '')}-{theme}.png"), full_page=True)
+                    tangkap_penuh(shot, str(OUT / f"{name}--{engine}-{device.replace(' ', '')}-{theme}.png"))
                     shot.screenshot(path=str(OUT / f"{name}-skrin1--{engine}-{device.replace(' ', '')}-{theme}.png"))
                 # tulisan reka bentuk (D90): docs/*.md dalam dua bahasa, satu lajur bacaan, kod sebaris membalut
                 for path in ["/design", "/ms/design"]:

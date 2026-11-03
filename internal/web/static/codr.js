@@ -1,4 +1,4 @@
-// AMCD — dua tingkah laku progresif: butang "Salin" dan togol tema. Tanpa JS: kotak teks boleh dipilih, tema ikut sistem.
+// Codr — dua tingkah laku progresif: butang "Salin" dan togol tema. Tanpa JS: kotak teks boleh dipilih, tema ikut sistem.
 (function () {
   "use strict";
   var buttons = document.querySelectorAll("button.salin[data-salin]");

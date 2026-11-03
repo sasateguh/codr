@@ -1,5 +1,5 @@
-// Package hooks is the git hook door of AMCD (D9): git runs `amcd hook pre-receive`
-// (a three-line script written by AMCD), the hook forwards the ref updates over a Unix
+// Package hooks is the git hook door of Codr (D9): git runs `codr hook pre-receive`
+// (a three-line script written by Codr), the hook forwards the ref updates over a Unix
 // socket in data/, and the serve process decides. Protected branches and the push size
 // limit live here, once, for every door.
 package hooks
@@ -88,7 +88,7 @@ func Call(socket string, req Request, timeout time.Duration) (Response, error) {
 	return resp, nil
 }
 
-// RunHook is the body of `amcd hook <name>`: it reads the environment git and AMCD set,
+// RunHook is the body of `codr hook <name>`: it reads the environment git and Codr set,
 // forwards stdin, and prints the verdict. Without CODR_SOCKET (a push made on the host
 // directly to the bare repo, D13) it allows silently — that operator already owns the disk.
 // pre-receive fails CLOSED when serve cannot be reached; post-receive never blocks.

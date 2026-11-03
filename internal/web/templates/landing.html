@@ -240,7 +240,7 @@
       <p>{{$.T "landing.install.lead"}}</p>
     </div>
     <ol class="p-langkah kad">
-      <li><span class="p-langkah-nama">{{$.T "landing.install.s1"}}</span><code id="pasang-1">{{$.T "landing.install.c1"}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-1" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
+      <li><span class="p-langkah-nama">{{if $.Data.DownloadBase}}{{$.T "landing.install.s1_bin"}}{{else}}{{$.T "landing.install.s1"}}{{end}}</span><code id="pasang-1">{{if $.Data.DownloadBase}}{{$.T "landing.install.c1_bin" $.Data.DownloadBase}}{{else}}{{$.T "landing.install.c1"}}{{end}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-1" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
       <li><span class="p-langkah-nama">{{$.T "landing.install.s2"}}</span><code id="pasang-2">{{$.T "landing.install.c2"}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-2" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
       <li><span class="p-langkah-nama">{{$.T "landing.install.s3"}}</span><code id="pasang-3">{{$.T "landing.install.c3"}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-3" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
       <li><span class="p-langkah-nama">{{$.T "landing.install.s4"}}</span><code id="pasang-4">{{$.T "landing.install.c4"}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-4" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
@@ -249,7 +249,18 @@
   </div>
 </section>
 
-<section class="p-bahagian p-akhir" aria-labelledby="akhir-tajuk">
+{{if $.Data.FAQ}}<section class="p-bahagian p-soalan" id="soalan" aria-labelledby="soalan-tajuk">
+  <div class="p-dalam">
+    <p class="p-kening">{{$.T "landing.faq.kicker"}}</p>
+    <h2 id="soalan-tajuk">{{$.T "landing.faq.title"}}</h2>
+    <dl class="p-soalan-senarai">
+      {{range $.Data.FAQ}}<div class="p-soalan-item"><dt>{{.Q}}</dt><dd>{{.A}}</dd></div>
+      {{end}}
+    </dl>
+  </div>
+</section>
+
+{{end}}<section class="p-bahagian p-akhir" aria-labelledby="akhir-tajuk">
   <div class="p-dalam">
     <p class="p-kening">{{$.T "landing.end.kicker"}}</p>
     <h2 id="akhir-tajuk">{{$.T "landing.end.title"}}</h2>
@@ -265,8 +276,7 @@
 <div class="p-gergasi" aria-hidden="true"><div class="p-dalam"><span>{{$.SiteName}}</span></div></div>
 <footer class="p-kaki">
   <div class="p-dalam p-kaki-dalam">
-    <span>{{$.SiteName}} · {{$.T "landing.footer.built"}}{{if or $.Data.Author.URL $.Data.Publisher.URL}} {{$.T "landing.footer.by"}}{{if $.Data.Author.URL}} <a href="{{$.Data.Author.URL}}" rel="author">{{$.Data.Author.Name}}</a>{{end}}{{if and $.Data.Author.URL $.Data.Publisher.URL}} ·{{end}}{{if $.Data.Publisher.URL}} <a href="{{$.Data.Publisher.URL}}">{{$.Data.Publisher.Name}}</a>{{end}}{{end}}</span>
-    <span class="lembut">{{if $.Data.SourceURL}}<a href="{{$.Data.SourceURL}}" rel="noopener">{{$.T "landing.footer.licence"}}</a>{{else}}{{$.T "landing.footer.licence"}}{{end}} · {{$.T "landing.footer.version" $.Version}}</span>
+    {{template "kaki-oleh" $}}
   </div>
 </footer>
 <script src="{{$.Static}}/codr.js" defer></script>

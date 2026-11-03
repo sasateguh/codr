@@ -47,6 +47,10 @@ type landingData struct {
 	Publisher landingPerson
 	// JSONLD is the schema.org graph, JSON-encoded by html/template in a data block (D110).
 	JSONLD map[string]any
+	// FAQ is the visible question list; the same items feed the FAQPage node (D110).
+	FAQ []faqItem
+	// DownloadBase is landing.source_url when it is a GitHub repository: the install step then downloads the release binary.
+	DownloadBase string
 	// DesignPath is the design write-up in this language (D90).
 	DesignPath string
 	// Rejected is the real message a force push to a protected branch gets, for the terminal section.
@@ -116,6 +120,12 @@ func (s *Server) landing(w http.ResponseWriter, r *http.Request, host string) {
 		return
 	}
 	switch p := r.URL.Path; {
+	case r.URL.Query().Get("go-get") == "1" && (p == modulePath || strings.HasPrefix(p, modulePath+"/")):
+		s.goImport(w, r)
+	case p == "/design/" || p == "/en/design/" || p == "/ms/design/":
+		http.Redirect(w, r, strings.TrimSuffix(p, "/"), http.StatusMovedPermanently)
+	case p == "/favicon.ico":
+		http.Redirect(w, r, "/static/"+s.UI.staticHash+"/apple-touch-icon.png", http.StatusMovedPermanently)
 	case strings.HasPrefix(p, "/static/"):
 		s.staticHandler().ServeHTTP(w, r)
 	case p == "/healthz":
@@ -241,8 +251,13 @@ func (s *Server) landingPage(w http.ResponseWriter, r *http.Request, lang string
 	}
 	static := "/static/" + s.UI.staticHash
 	d.Author, d.Publisher = s.landingPeople(ctx)
+	d.FAQ = landingFAQ(lang, d)
+	if strings.HasPrefix(d.SourceURL, "https://github.com/") {
+		d.DownloadBase = strings.TrimSuffix(d.SourceURL, "/")
+	}
 	og := base + static + "/og.png"
-	d.JSONLD = landingJSONLD(lang, name, d, og, version.String())
+	shot := base + static + "/produk/pr-cerah-" + lang[:2] + ".webp"
+	d.JSONLD = landingJSONLD(lang, name, d, og, shot, version.String())
 	p := page{Lang: lang, CSRF: "", SiteName: name, Static: static, Version: version.String(), Path: r.URL.Path,
 		Title: i18n.T(lang, "landing.title"), Now: time.Now(), OGImage: og, OtherLang: other, Data: d}
 	if !d.Index {

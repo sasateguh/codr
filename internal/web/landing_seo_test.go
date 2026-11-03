@@ -96,3 +96,70 @@ func TestLandingSEO(t *testing.T) {
 		t.Fatal("unsafe author link shown")
 	}
 }
+
+// TestLandingSEOExtras: the go command finds the module through ?go-get=1, trailing slashes and /favicon.ico stay
+// on the landing host, the FAQ is visible and in the graph, the app node is the same on both languages, and the
+// design page describes itself as an article by the same people (D110).
+func TestLandingSEOExtras(t *testing.T) {
+	h := newHarness(t)
+	h.seed(t)
+	h.s.LandingHosts = []string{"codr.my"}
+	ctx := context.Background()
+	if resp, _ := landingGet(t, h, "GET", "codr.my", "/codr/cmd/codr?go-get=1"); resp.StatusCode != 404 {
+		t.Fatalf("go-get without a source URL: %d", resp.StatusCode)
+	}
+	for k, v := range map[string]string{"landing.index": "true", "landing.source_url": "https://github.com/sasateguh/codr",
+		"landing.author_name": "Aiman Malib", "landing.author_url": "https://aimanmalib.com",
+		"landing.publisher_name": "Sasa Teguh", "landing.publisher_url": "https://sasateguh.com"} {
+		if err := h.st.SetSetting(ctx, k, v, h.users["alice"].ID); err != nil {
+			t.Fatal(err)
+		}
+	}
+	_, body := landingGet(t, h, "GET", "codr.my", "/codr/cmd/codr?go-get=1")
+	if !strings.Contains(body, `<meta name="go-import" content="codr.my/codr git https://github.com/sasateguh/codr">`) {
+		t.Fatalf("go-import: %s", body)
+	}
+	for path, to := range map[string]string{"/design/": "/design", "/ms/design/": "/ms/design"} {
+		if resp, _ := landingGet(t, h, "GET", "codr.my", path); resp.StatusCode != 301 || resp.Header.Get("Location") != to {
+			t.Fatalf("%s: %d %s", path, resp.StatusCode, resp.Header.Get("Location"))
+		}
+	}
+	if resp, _ := landingGet(t, h, "GET", "codr.my", "/favicon.ico"); resp.StatusCode != 301 || !strings.HasSuffix(resp.Header.Get("Location"), "/apple-touch-icon.png") {
+		t.Fatalf("favicon: %d %s", resp.StatusCode, resp.Header.Get("Location"))
+	}
+	graph := func(body string) []map[string]any {
+		i := strings.Index(body, `<script type="application/ld+json">`)
+		j := strings.Index(body[i:], "</script>")
+		var g struct {
+			Graph []map[string]any `json:"@graph"`
+		}
+		if err := json.Unmarshal([]byte(body[i+len(`<script type="application/ld+json">`):i+j]), &g); err != nil {
+			t.Fatal(err)
+		}
+		return g.Graph
+	}
+	byType := func(g []map[string]any, typ string) map[string]any {
+		for _, n := range g {
+			if n["@type"] == typ {
+				return n
+			}
+		}
+		return nil
+	}
+	_, en := landingGet(t, h, "GET", "codr.my", "/")
+	_, ms := landingGet(t, h, "GET", "codr.my", "/ms")
+	appEN, appMS := byType(graph(en), "SoftwareApplication"), byType(graph(ms), "SoftwareApplication")
+	if appEN["url"] != "http://codr.my/" || appMS["url"] != appEN["url"] || appEN["description"] != appMS["description"] ||
+		appEN["downloadUrl"] != "https://github.com/sasateguh/codr/releases/latest" || strings.HasPrefix(appEN["softwareVersion"].(string), "v") {
+		t.Fatalf("app nodes differ or lack download: %v / %v", appEN, appMS)
+	}
+	faq := byType(graph(en), "FAQPage")
+	if faq == nil || len(faq["mainEntity"].([]any)) != 6 || !strings.Contains(en, "Is Codr an alternative to Gitea or Forgejo?") ||
+		!strings.Contains(en, "Aiman Malib at Sasa Teguh") || !strings.Contains(en, "releases/latest/download/codr-linux-amd64") {
+		t.Fatal("FAQ or binary install step missing on the open landing page")
+	}
+	_, d := landingGet(t, h, "GET", "codr.my", "/design")
+	if art := byType(graph(d), "TechArticle"); art == nil || art["author"] == nil || !strings.Contains(d, `rel="author"`) || !strings.Contains(d, `<meta name="author"`) {
+		t.Fatal("design page lacks its article graph or author")
+	}
+}

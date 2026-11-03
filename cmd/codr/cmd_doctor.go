@@ -78,7 +78,12 @@ func (c *cli) cmdDoctor(args []string) error {
 	if out, err := exec.Command(cfg.Git.Binary, "--version").Output(); err != nil { // #nosec G204 -- operator config
 		d.line("fail", "doctor.git_fail", err)
 	} else {
-		d.line("ok", "doctor.git", strings.TrimSpace(string(out)))
+		if v := strings.TrimSpace(string(out)); gitAtLeast(v, 2, 40) {
+			d.line("ok", "doctor.git", v)
+		} else {
+			// rebase/squash merges use `merge-tree --merge-base`, added in git 2.40 (D88)
+			d.line("fail", "doctor.git_old", v, "2.40")
+		}
 		// git-http-backend ships in a separate package on some distros (Alpine: git-daemon); without
 		// it every HTTPS clone is a 500 while SSH keeps working.
 		if ep, err := exec.Command(cfg.Git.Binary, "--exec-path").Output(); err == nil { // #nosec G204 -- operator config
@@ -355,4 +360,23 @@ func mb(n int64) string {
 		return strconv.FormatFloat(float64(n)/1024, 'f', 1, 64) + " GB"
 	}
 	return strconv.FormatInt(n, 10) + " MB"
+}
+
+// gitAtLeast reports whether `git --version` output ("git version 2.43.0", "git version 2.39.5 (Apple Git-154)")
+// is at least major.minor. Unreadable output counts as too old.
+func gitAtLeast(out string, major, minor int) bool {
+	f := strings.Fields(out)
+	if len(f) < 3 {
+		return false
+	}
+	parts := strings.SplitN(f[2], ".", 3)
+	if len(parts) < 2 {
+		return false
+	}
+	ma, err1 := strconv.Atoi(parts[0])
+	mi, err2 := strconv.Atoi(parts[1])
+	if err1 != nil || err2 != nil {
+		return false
+	}
+	return ma > major || ma == major && mi >= minor
 }

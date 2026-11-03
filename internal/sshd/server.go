@@ -1,4 +1,4 @@
-// Package sshd is the SSH door of AMCD: public-key auth only, no shell, no pty, no
+// Package sshd is the SSH door of Codr: public-key auth only, no shell, no pty, no
 // forwarding, and exactly one of two git commands per session (PRD §9). Permission is
 // decided by store.AccessFor before git is started.
 package sshd

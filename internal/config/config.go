@@ -125,7 +125,7 @@ func Default() Config {
 				"2a06:98c0::/29", "2c0f:f248::/32"}},
 		Git:  Git{Binary: "git", TimeoutSeconds: 3600, MaxInputMB: 2048, MirrorTickSeconds: 60},
 		Auth: Auth{Argon2Time: 3, Argon2MemoryKiB: 64 * 1024, Argon2Threads: 2, PasswordMinLen: 12, SessionHours: 720, SSHMaxAuthTries: 4, HTTPFailMax: 20, HTTPFailWindowSeconds: 600},
-		Site: Site{DefaultLanguage: "ms-MY", LandingHosts: []string{}, RedirectHosts: []string{}},
+		Site: Site{DefaultLanguage: "en-US", LandingHosts: []string{}, RedirectHosts: []string{}},
 	}
 }
 
@@ -225,7 +225,7 @@ const (
 
 // adoptLegacyDB renames data/amcd.db (with its -wal and -shm) to codr.db when only the old name exists.
 // It runs on every Load, so any command finds the database. It is NOT safe while another process has the
-// old file open: deploy.sh stops the old container before the first codr binary touches the data (D58).
+// old file open: the deploy script stops the old container before the first codr binary touches the data (D58).
 func (c Config) adoptLegacyDB() error {
 	cur, old := c.DBPath(), filepath.Join(c.DataDir(), LegacyDBName)
 	if _, err := os.Stat(cur); err == nil {

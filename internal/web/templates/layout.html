@@ -186,3 +186,5 @@
     <span class="mono semakan-nama">{{.Context}}</span>{{if .Description}} <span class="meta">{{.Description}}</span>{{end}}{{if .TargetURL}} <a href="{{.TargetURL}}" rel="nofollow noopener noreferrer">{{$.T "ui.status.details"}}</a>{{end}}</li>
 {{end}}</ul>
 {{end}}
+{{define "kaki-oleh"}}<span>{{$.SiteName}} · {{$.T "landing.footer.built"}}{{if or $.Data.Author.URL $.Data.Publisher.URL}} {{$.T "landing.footer.by"}}{{if $.Data.Author.URL}} <a href="{{$.Data.Author.URL}}" rel="author">{{$.Data.Author.Name}}</a>{{end}}{{if and $.Data.Author.URL $.Data.Publisher.URL}} ·{{end}}{{if $.Data.Publisher.URL}} <a href="{{$.Data.Publisher.URL}}">{{$.Data.Publisher.Name}}</a>{{end}}{{end}}</span>
+    <span class="lembut">{{if $.Data.SourceURL}}<a href="{{$.Data.SourceURL}}" rel="noopener">{{$.T "landing.footer.licence"}}</a>{{else}}{{$.T "landing.footer.licence"}}{{end}} · {{$.T "landing.footer.version" $.Version}}</span>{{end}}

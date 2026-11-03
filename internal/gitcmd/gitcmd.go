@@ -33,7 +33,7 @@ func Parse(word string) (Service, bool) {
 }
 
 // Runner executes services with a timeout. HooksDir is forced as core.hooksPath on every
-// run (PRD §9: hooks are written by AMCD only) and HookSocket is where those hooks talk
+// run (hooks are written by Codr only) and HookSocket is where those hooks talk
 // to the serve process (D9).
 type Runner struct {
 	Binary     string

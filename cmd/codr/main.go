@@ -1,4 +1,4 @@
-// Command amcd is the single binary of the AMCD git forge.
+// Command codr is the single binary of the Codr git forge.
 //
 // Subcommands: init, migrate, serve, doctor, admin (user|key|repo|collab|token|protect|setting|mirror), hook, version, help.
 // Every line printed for a human goes through i18n (locale/*.json); code holds keys only.

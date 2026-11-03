@@ -35,7 +35,7 @@ func TestComplete(t *testing.T) {
 
 func TestValidEndpoint(t *testing.T) {
 	for v, want := range map[string]bool{
-		"https://api.openai.com/v1": true, "http://10.0.1.1:20128/v1": true, "http://127.0.0.1:11434/v1": true, "http://localhost:8080/v1": true,
+		"https://api.openai.com/v1": true, "http://10.0.1.1:8080/v1": true, "http://127.0.0.1:11434/v1": true, "http://localhost:8080/v1": true,
 		"http://example.com/v1": false, "ftp://x": false, "https://u:p@x/v1": false, "https://x/v1?k=1": false, "http://8.8.8.8/v1": false,
 	} {
 		if ValidEndpoint(v) != want {

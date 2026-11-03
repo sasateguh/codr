@@ -35,7 +35,7 @@ func TestCheckURL(t *testing.T) {
 		"example.com/hook":                 ErrBadURL,
 		"https://example.com/#frag":        ErrBadURL,
 		"http://127.0.0.1:3000/":           ErrPrivate, // Forgejo on this host
-		"http://10.0.1.1:20128/v1":         ErrPrivate, // the LLM router
+		"http://10.0.1.1:8080/v1":          ErrPrivate, // a gateway on the private network
 		"http://169.254.169.254/latest/":   ErrPrivate, // cloud metadata
 		"http://[::1]/":                    ErrPrivate,
 		"http://localhost:9/":              ErrPrivate,

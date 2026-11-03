@@ -1,5 +1,5 @@
 // Package version holds the build identity of the binary.
-// Values are set at link time by scripts/gate.sh and deploy tooling:
+// Values are set at link time by scripts/build-release.sh (and the deploy tooling):
 //
 //	go build -ldflags "-X codr.my/codr/internal/version.Tag=v0.1.0 -X ...Commit=abc123"
 package version

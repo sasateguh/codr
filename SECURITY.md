@@ -4,7 +4,7 @@ Codr holds people's source code, so security reports come first.
 
 ## Reporting a vulnerability
 
-Please do not open a public issue. Email **admin@sasateguh.com** with:
+Please do not open a public issue. Use GitHub's [private vulnerability report](https://github.com/sasateguh/codr/security/advisories/new), or email **admin@sasateguh.com** with:
 
 - what you found and where (version, page, command or endpoint),
 - the steps to reproduce it, and

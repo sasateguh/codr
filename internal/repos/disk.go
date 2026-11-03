@@ -44,7 +44,7 @@ func (d Disk) Create(ctx context.Context, id int64, defaultBranch string) error 
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("git init: %w: %s", err, strings.TrimSpace(string(out)))
 	}
-	// Hooks and config are owned by AMCD (PRD §9): users never upload hooks.
+	// Hooks and config are owned by Codr: users never upload hooks.
 	return os.WriteFile(filepath.Join(p, "description"), []byte("codr repo "+strconv.FormatInt(id, 10)+"\n"), 0o600)
 }
 

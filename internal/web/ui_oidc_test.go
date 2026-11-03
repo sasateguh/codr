@@ -137,7 +137,7 @@ func TestOIDC(t *testing.T) {
 	}
 	// configure through the admin page
 	adminU := h.users["alice"]
-	_, _ = h.st.DB().Exec(`UPDATE users SET is_admin = 1, email = 'alice@syarikat.my' WHERE id = ?`, adminU.ID)
+	_, _ = h.st.DB().Exec(`UPDATE users SET is_admin = 1, email = 'alice@company.example' WHERE id = ?`, adminU.ID)
 	alice := h.login("alice", "kata laluan alice")
 	if code, body, _ := alice.post("/admin/oidc", url.Values{"name": {"Syarikat"}, "issuer": {f.srv.URL}, "client_id": {"codr-test"}, "enabled": {"1"}}); code != 400 || !strings.Contains(body, "Fill in the name") {
 		t.Fatalf("on without a secret: %d", code)
@@ -159,19 +159,19 @@ func TestOIDC(t *testing.T) {
 	}
 
 	// unknown email: refused, nothing created
-	f.who = map[string]any{"sub": "s-bob", "email": "bob@syarikat.my", "email_verified": true}
+	f.who = map[string]any{"sub": "s-bob", "email": "bob@company.example", "email_verified": true}
 	nUsers := func() int { var n int; _ = h.st.DB().QueryRow(`SELECT COUNT(*) FROM users`).Scan(&n); return n }
 	before := nUsers()
 	if code, body, _ := oidcSignIn(t, h.browser(), f); code != 401 || !strings.Contains(body, "no active Codr account") || nUsers() != before {
 		t.Fatalf("unknown email: %d", code)
 	}
 	// unverified email: refused even though it matches
-	f.who = map[string]any{"sub": "s-alice", "email": "ALICE@syarikat.my", "email_verified": false}
+	f.who = map[string]any{"sub": "s-alice", "email": "ALICE@company.example", "email_verified": false}
 	if code, body, _ := oidcSignIn(t, h.browser(), f); code != 401 || !strings.Contains(body, "has not verified your email") {
 		t.Fatalf("unverified: %d", code)
 	}
 	// wrong audience: refused
-	f.who, f.aud = map[string]any{"sub": "s-alice", "email": "alice@syarikat.my", "email_verified": true}, "lain"
+	f.who, f.aud = map[string]any{"sub": "s-alice", "email": "alice@company.example", "email_verified": true}, "lain"
 	if code, body, _ := oidcSignIn(t, h.browser(), f); code != 401 || !strings.Contains(body, "failed its checks") {
 		t.Fatalf("audience: %d", code)
 	}
@@ -182,7 +182,7 @@ func TestOIDC(t *testing.T) {
 	if code != 303 {
 		t.Fatalf("sign-in: %d", code)
 	}
-	if c, body := b.get("/akaun", "en"); c != 200 || !strings.Contains(body, "alice@syarikat.my") || !strings.Contains(body, "/akaun/oidc/padam") {
+	if c, body := b.get("/akaun", "en"); c != 200 || !strings.Contains(body, "alice@company.example") || !strings.Contains(body, "/akaun/oidc/padam") {
 		t.Fatalf("signed in as alice with the link listed: %d", c)
 	}
 	if u, err := h.st.OIDCUser(ctx, f.srv.URL, "s-alice"); err != nil || u.Name != "alice" {
@@ -229,7 +229,7 @@ func TestOIDC(t *testing.T) {
 		t.Fatal("unlink")
 	}
 	_, _ = h.st.DB().Exec(`UPDATE users SET disabled_at = ? WHERE id = ?`, store.Now(), adminU.ID)
-	f.who = map[string]any{"sub": "s-alice", "email": "alice@syarikat.my", "email_verified": true}
+	f.who = map[string]any{"sub": "s-alice", "email": "alice@company.example", "email_verified": true}
 	if code, _, _ := oidcSignIn(t, h.browser(), f); code != 401 {
 		t.Fatalf("disabled account: %d", code)
 	}

@@ -26,6 +26,8 @@
 <meta property="og:locale" content="{{if eq $.Lang "en-US"}}en_US{{else}}ms_MY{{end}}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="{{$.OGImage}}">
+{{if $.Data.Author.Name}}<meta name="author" content="{{$.Data.Author.Name}}">
+{{end}}<script type="application/ld+json">{{$.Data.JSONLD}}</script>
 <link rel="preload" href="{{$.Static}}/fonts/ibm-plex-sans-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{$.Static}}/codr.css">
 <link rel="stylesheet" href="{{$.Static}}/pendaratan.css">
@@ -39,6 +41,7 @@
     <nav class="p-nav" aria-label="{{$.T "landing.nav.label"}}">
       <a href="{{$.Data.Home}}">{{$.T "landing.nav.product"}}</a>
       <a href="{{if eq $.Lang "ms-MY"}}{{$.Data.MSPath}}{{else}}{{$.Data.ENPath}}{{end}}" aria-current="page">{{$.T "landing.nav.design"}}</a>
+      {{if $.Data.SourceURL}}<a href="{{$.Data.SourceURL}}" rel="noopener">{{$.T "landing.nav.source"}}</a>{{end}}
     </nav>
     <div class="p-alat">
       <nav class="p-bahasa" aria-label="{{$.T "landing.nav.lang"}}">
@@ -60,8 +63,7 @@
 </main>
 <footer class="p-kaki">
   <div class="p-dalam p-kaki-dalam">
-    <span>{{$.SiteName}} · {{$.T "landing.footer.built"}}</span>
-    <span class="lembut">{{$.T "landing.footer.licence"}} · {{$.T "landing.footer.version" $.Version}}</span>
+    {{template "kaki-oleh" $}}
   </div>
 </footer>
 <script src="{{$.Static}}/codr.js" defer></script>

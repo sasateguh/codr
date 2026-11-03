@@ -1,12 +1,11 @@
-# codr-runner (D89). Salin ke state/runner.toml (0600): ia memegang token dan rahsia webhook.
-# Copy to state/runner.toml (0600): it holds the token and the webhook secret.
-listen         = "0.0.0.0:3200"             # dalam kontena; hos melihatnya di 127.0.0.1:3200
-forge_url      = "http://codr:3000"         # Codr di rangkaian dalaman (klon + API status)
-public_url     = "https://git.example.com"  # pautan log: <public_url>/ci/log/<id>
-token          = "codr_…"                   # token repo:write akaun pelari (cth. codr-ci, kolaborator tulis)
-webhook_secret = ""                         # pilihan: rahsia kongsi; Codr menjana satu rahsia SETIAP webhook, jadi biasanya [secrets]
-lang           = "ms-MY"
-work_dir       = "/srv/codr-runner/work"   # laluan SAMA di hos dan kontena
+# codr-runner configuration (D89). Copy to runner.toml with mode 0600: it holds the token and the webhook secrets.
+listen         = "0.0.0.0:3200"             # inside the container; publish it on the host as 127.0.0.1:3200
+forge_url      = "http://codr:3000"         # Codr on the internal network (clone + status API)
+public_url     = "https://git.example.com"  # log links: <public_url>/ci/log/<id>
+token          = "codr_…"                   # repo:write token of the runner account (e.g. codr-ci, a write collaborator)
+webhook_secret = ""                         # optional shared secret; Codr makes one secret PER webhook, so usually use [secrets]
+lang           = "en-US"                    # language of check messages (en-US or ms-MY)
+work_dir       = "/srv/codr-runner/work"    # the SAME path on the host and in the container
 log_dir        = "/srv/codr-runner/log"
 concurrency    = 1
 timeout_minutes = 15
@@ -14,8 +13,8 @@ memory         = "1g"
 cpus           = "1"
 pids           = 256
 tmp_size       = "256m"
-allow_network  = false                      # true = kerja boleh memuat turun kebergantungan
-repos          = ["you/*"]                # repo yang dilayan (glob); kosong = semua yang webhooknya sah
+allow_network  = false                      # true = jobs may download dependencies
+repos          = ["you/*"]                  # repositories served (glob); empty = every repository with a valid webhook
 
-[secrets]                                   # rahsia webhook setiap repo (dipapar sekali semasa webhook dicipta)
+[secrets]                                   # webhook secret per repository (shown once when the webhook is created)
 "you/project" = "…"

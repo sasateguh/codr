@@ -136,6 +136,13 @@
 .p-lesen { margin: 20px 0 0; color: var(--dakwat-lembut); font-size: .875rem; max-width: 60em; }
 
 .p-akhir { text-align: center; }
+/* Soalan lazim (D110): senarai dt/dd biasa, satu garis antara soalan, teks boleh dibaca enjin carian dan pembaca skrin. */
+.p-soalan h2 { font-size: clamp(1.75rem, 1.2rem + 2vw, 2.625rem); line-height: 1.1; letter-spacing: -.03em; margin: 0 0 28px; }
+.p-soalan-senarai { margin: 0; max-width: 46em; }
+.p-soalan-item { padding: 20px 0; border-top: 1px solid var(--kertas-garis); }
+.p-soalan-item:last-child { border-bottom: 1px solid var(--kertas-garis); }
+.p-soalan-item dt { font-weight: 600; font-size: 1.0625rem; line-height: 1.4; }
+.p-soalan-item dd { margin: 8px 0 0; color: var(--dakwat-lembut); line-height: 1.6; text-wrap: pretty; }
 .p-akhir p { margin: 14px auto 0; max-width: 36em; font-size: 1.0625rem; color: var(--dakwat-lembut); line-height: 1.6; }
 .p-akhir .p-cta { justify-content: center; }
 

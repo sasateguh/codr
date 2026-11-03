@@ -1,0 +1,25 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: git and git-lfs
+        run: sudo apt-get update && sudo apt-get install -y git git-lfs && git --version && git lfs version
+      - name: gofmt
+        run: test -z "$(gofmt -l $(git ls-files '*.go'))"
+      - name: vet
+        run: go vet ./...
+      - name: test
+        run: go test -race -count=1 ./...
+      - name: build
+        run: go build -o /dev/null ./cmd/codr && go build -o /dev/null ./cmd/codr-runner

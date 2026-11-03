@@ -1,4 +1,4 @@
-// Package web is the HTTPS door of AMCD: /healthz and smart HTTP git under
+// Package web is the HTTPS door of Codr: /healthz and smart HTTP git under
 // /<owner>/<repo>.git. Authentication is token-only (D8, hashed D28); permission is the
 // same store.AccessFor decision as the SSH door, taken before git is started. The web UI
 // (v0.3) mounts beside these routes.

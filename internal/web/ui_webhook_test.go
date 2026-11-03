@@ -101,7 +101,7 @@ func TestWebhooks(t *testing.T) {
 	}
 
 	// private and local destinations are refused by default, at save time
-	for _, u := range []string{"http://127.0.0.1:3000/", "http://10.0.1.1:20128/v1/chat", "http://169.254.169.254/latest/meta-data", "http://localhost:9/", "ftp://example.com/"} {
+	for _, u := range []string{"http://127.0.0.1:3000/", "http://10.0.1.1:8080/v1/chat", "http://169.254.169.254/latest/meta-data", "http://localhost:9/", "ftp://example.com/"} {
 		code, body, _ := alice.post("/alice/awam/webhook", url.Values{"url": {u}})
 		if code != 400 || !(strings.Contains(body, "private or local network") || strings.Contains(body, "http or https URL")) {
 			t.Fatalf("%s accepted: %d", u, code)

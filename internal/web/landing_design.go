@@ -4,6 +4,7 @@ import (
 	"context"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	"codr.my/codr/docs"
@@ -53,8 +54,13 @@ func (s *Server) designPage(w http.ResponseWriter, r *http.Request, lang string)
 		name = n
 	}
 	static := "/static/" + s.UI.staticHash
+	src2, _ := s.Store.Setting(ctx, "landing.source_url")
+	d.SourceURL = safeURL(strings.TrimSpace(src2))
+	d.Author, d.Publisher = s.landingPeople(ctx)
+	title := i18n.T(lang, "landing.design.title") + " · " + name
+	d.JSONLD = designJSONLD(lang, title, base, d.landingData, base+static+"/og.png")
 	p := page{Lang: lang, SiteName: name, Static: static, Version: version.String(), Path: r.URL.Path,
-		Title: i18n.T(lang, "landing.design.title") + " · " + name, Now: time.Now(), OGImage: base + static + "/og.png", OtherLang: other, Data: d}
+		Title: title, Now: time.Now(), OGImage: base + static + "/og.png", OtherLang: other, Data: d}
 	if !d.Index {
 		w.Header().Set("X-Robots-Tag", "noindex, nofollow")
 	}
