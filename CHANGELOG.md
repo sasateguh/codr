@@ -4,6 +4,11 @@ Codr was developed in a private repository from 12 October 2026 and has hosted i
 (14 October 2026). This public repository starts at v2.29.0 as one squashed commit; the versions before it are listed
 here only as a summary.
 
+## v2.30.1
+
+- A binary built with `go install` reports its module version and commit instead of `dev`.
+- llms.txt states the licence as AGPL-3.0-or-later, like everywhere else. README shows CI, release and licence badges.
+
 ## v2.30.0
 
 - `go install codr.my/codr/cmd/codr@latest` works: codr.my answers the go command's import probe.

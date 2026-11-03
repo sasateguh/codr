@@ -538,7 +538,7 @@
   "landing.og_alt": "Codr: a self-hosted git forge in one Go binary",
   "landing.nav.source": "Source",
   "landing.footer.by": "By",
-  "landing.llms.licence": "Free and open source under AGPL-3.0. Runs on your own Linux machine: one Go binary, SQLite and plain bare git repositories.",
+  "landing.llms.licence": "Free and open source under AGPL-3.0-or-later. Runs on your own Linux machine: one Go binary, SQLite and plain bare git repositories.",
   "landing.llms.pages": "Pages",
   "landing.llms.people": "People",
   "landing.llms.author": "Author",

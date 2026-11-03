@@ -538,7 +538,7 @@
   "landing.og_alt": "Codr: forge git swa-hos dalam satu binari Go",
   "landing.nav.source": "Kod sumber",
   "landing.footer.by": "Oleh",
-  "landing.llms.licence": "Percuma dan sumber terbuka di bawah AGPL-3.0. Berjalan di mesin Linux anda sendiri: satu binari Go, SQLite dan repo git bare biasa.",
+  "landing.llms.licence": "Percuma dan sumber terbuka di bawah AGPL-3.0-or-later. Berjalan di mesin Linux anda sendiri: satu binari Go, SQLite dan repo git bare biasa.",
   "landing.llms.pages": "Halaman",
   "landing.llms.people": "Orang",
   "landing.llms.author": "Pengarang",

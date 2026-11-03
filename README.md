@@ -2,6 +2,8 @@
 
 <h1 align="center">Codr</h1>
 
+<p align="center"><a href="https://github.com/sasateguh/codr/actions/workflows/ci.yml"><img src="https://github.com/sasateguh/codr/actions/workflows/ci.yml/badge.svg" alt="CI"></a> <a href="https://github.com/sasateguh/codr/releases/latest"><img src="https://img.shields.io/github/v/release/sasateguh/codr" alt="Latest release"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/licence-AGPL--3.0--or--later-blue" alt="Licence: AGPL-3.0-or-later"></a></p>
+
 <p align="center"><b>Your code, on your own machine.</b> · <i>Kod anda, di mesin anda.</i><br>
 <a href="https://codr.my">codr.my</a> · <a href="https://git.codr.my/aiman/contoh">live example</a> · <a href="docs/design.md">design</a> · <a href="LICENSE">AGPL-3.0-or-later</a> · Built in Malaysia by <a href="https://aimanmalib.com">Aiman Malib</a> · <a href="https://sasateguh.com">Sasa Teguh</a></p>
 
