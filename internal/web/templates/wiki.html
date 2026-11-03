@@ -1,0 +1,47 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="wiki">
+  <div class="wiki-utama">
+  {{if $.Data.Missing}}
+    {{if $.Data.Page}}
+    <h1>{{$.Data.Title}}</h1>
+    <p class="meta">{{$.T "ui.wiki.missing"}}</p>
+    {{if $.Data.CanEdit}}<p><a class="butang butang-utama" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/_baharu?tajuk={{$.Data.Title}}">{{$.T "ui.wiki.create_this"}}</a></p>{{end}}
+    {{else}}
+    <div class="kosong-besar">
+      <h1>{{$.T "ui.wiki.empty_title"}}</h1>
+      <p class="meta prosa">{{$.T "ui.wiki.empty_intro"}}</p>
+      {{if $.Data.CanEdit}}<p><a class="butang butang-utama" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/_baharu">{{$.T "ui.wiki.create_first"}}</a></p>{{else}}<p class="meta">{{$.T "ui.wiki.empty_reader"}}</p>{{end}}
+    </div>
+    {{end}}
+  {{else}}
+    <div class="kepala-senarai">
+      <h1>{{$.Data.Title}}</h1>
+      <span class="wiki-alat">
+        <a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{$.Data.Page}}/sejarah">{{$.T "ui.wiki.history"}}</a>
+        {{if and $.Data.CanEdit (not $.Data.Rev)}}<a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{$.Data.Page}}/sunting">{{$.T "ui.wiki.edit"}}</a>{{end}}
+      </span>
+    </div>
+    {{if $.Data.Rev}}<p class="flash">{{$.T "ui.wiki.old_rev" (short $.Data.Rev)}} <a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{$.Data.Page}}">{{$.T "ui.wiki.to_current"}}</a></p>{{end}}
+    {{if $.Data.Removed}}<p class="nota-kecil">{{$.T "ui.wiki.sanitised"}}</p>{{end}}
+    <article class="prosa prosa-dalam kad wiki-isi">{{$.Data.HTML}}</article>
+  {{end}}
+  </div>
+  {{template "wiki-sisi" $}}
+</div>
+{{template "foot" $}}
+
+{{define "wiki-sisi"}}
+<aside class="wiki-sisi">
+  {{if $.Data.Pages}}<div class="kad sisi-kad">
+    <p class="kepala-bahagian">{{$.N "ui.wiki.pages_n" (len $.Data.Pages)}}</p>
+    <ul class="wiki-halaman">{{range $.Data.Pages}}<li><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{.Name}}"{{if eq .Name $.Data.Page}} aria-current="page"{{end}}>{{.Title}}</a></li>{{end}}</ul>
+    {{if $.Data.CanEdit}}<p><a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/_baharu">{{$.T "ui.wiki.new"}}</a></p>{{end}}
+  </div>{{end}}
+  <div class="kad sisi-kad">
+    <p class="kepala-bahagian">{{$.T "ui.wiki.clone"}}</p>
+    <pre class="kod-arahan mono wiki-klon" tabindex="0">{{$.T "ui.wiki.clone_cmd" $.Data.CloneURL}}</pre>
+    <p class="nota-kecil">{{$.T "ui.wiki.clone_note"}}</p>
+  </div>
+</aside>
+{{end}}

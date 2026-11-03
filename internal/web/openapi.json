@@ -1,0 +1,1084 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Codr API",
+  "version": "1",
+  "description": "REST API v1 of a Codr forge. Authenticate with an access token made on /akaun: Authorization: Bearer codr_…. Without a token you see what an anonymous visitor sees. What a call may do is the person's access, capped by the token's scope (repo:read, repo:write). A repository you cannot read answers 404. Lists take page and per_page and send X-Total-Count. Changes made here fire the same webhooks and notifications as the web pages."
+ },
+ "servers": [
+  {
+   "url": "/"
+  }
+ ],
+ "security": [
+  {
+   "token": []
+  },
+  {}
+ ],
+ "paths": {
+  "/api/v1/user": {
+   "get": {
+    "summary": "The signed-in person and the token's scopes",
+    "tags": [
+     "user"
+    ],
+    "parameters": [],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos": {
+   "get": {
+    "summary": "Repositories the caller can read",
+    "tags": [
+     "repos"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner_q"
+     },
+     {
+      "$ref": "#/components/parameters/q"
+     },
+     {
+      "$ref": "#/components/parameters/page"
+     },
+     {
+      "$ref": "#/components/parameters/per_page"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}": {
+   "get": {
+    "summary": "One repository (permission = access capped by the token)",
+    "tags": [
+     "repos"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/branches": {
+   "get": {
+    "summary": "Branches",
+    "tags": [
+     "git"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/tags": {
+   "get": {
+    "summary": "Tags",
+    "tags": [
+     "git"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/commits": {
+   "get": {
+    "summary": "Commit history of a ref, optionally of one path",
+    "tags": [
+     "git"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/ref"
+     },
+     {
+      "$ref": "#/components/parameters/path_q"
+     },
+     {
+      "$ref": "#/components/parameters/page"
+     },
+     {
+      "$ref": "#/components/parameters/per_page"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/contents/{path}": {
+   "get": {
+    "summary": "A directory listing, or one file as base64 (bounded by ui.blob_max_kb)",
+    "tags": [
+     "git"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/path"
+     },
+     {
+      "$ref": "#/components/parameters/ref"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/issues": {
+   "get": {
+    "summary": "Issues",
+    "tags": [
+     "issues"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/state"
+     },
+     {
+      "$ref": "#/components/parameters/q"
+     },
+     {
+      "$ref": "#/components/parameters/page"
+     },
+     {
+      "$ref": "#/components/parameters/per_page"
+     },
+     {
+      "name": "assignee",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      },
+      "description": "only threads assigned to this user name"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   },
+   "post": {
+    "summary": "Open an issue (repo:write token)",
+    "tags": [
+     "issues"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     },
+     "403": {
+      "$ref": "#/components/responses/Error"
+     },
+     "422": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/IssueIn"
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/issues/{n}": {
+   "get": {
+    "summary": "One issue",
+    "tags": [
+     "issues"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/n"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   },
+   "patch": {
+    "summary": "Edit an issue or set its state (the author, or write access)",
+    "tags": [
+     "issues"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/n"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     },
+     "403": {
+      "$ref": "#/components/responses/Error"
+     },
+     "422": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/IssueIn"
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/issues/{n}/comments": {
+   "get": {
+    "summary": "Comments of an issue",
+    "tags": [
+     "issues"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/n"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   },
+   "post": {
+    "summary": "Comment on an issue (repo:write token)",
+    "tags": [
+     "issues"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/n"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     },
+     "403": {
+      "$ref": "#/components/responses/Error"
+     },
+     "422": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CommentIn"
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/pulls": {
+   "get": {
+    "summary": "Pull requests",
+    "tags": [
+     "pulls"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/pstate"
+     },
+     {
+      "$ref": "#/components/parameters/q"
+     },
+     {
+      "$ref": "#/components/parameters/page"
+     },
+     {
+      "$ref": "#/components/parameters/per_page"
+     },
+     {
+      "name": "assignee",
+      "in": "query",
+      "schema": {
+       "type": "string"
+      },
+      "description": "only threads assigned to this user name"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/pulls/{n}": {
+   "get": {
+    "summary": "One pull request",
+    "tags": [
+     "pulls"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/n"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/commits/{sha}/statuses": {
+   "get": {
+    "summary": "Statuses of a commit (a branch or tag name resolves) and the combined state",
+    "tags": [
+     "statuses"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/sha"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/statuses/{sha}": {
+   "post": {
+    "summary": "Set the state of one context on a commit (CI runners; write access)",
+    "tags": [
+     "statuses"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/sha"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     },
+     "403": {
+      "$ref": "#/components/responses/Error"
+     },
+     "422": {
+      "$ref": "#/components/responses/Error"
+     }
+    },
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/StatusIn"
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/repos/{owner}/{repo}/issues/{n}/assignees": {
+   "post": {
+    "summary": "Assign people to an issue or pull request (repo:write token, write access)",
+    "tags": [
+     "issues"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/n"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssigneesIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "403": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     },
+     "422": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   },
+   "delete": {
+    "summary": "Remove assignees from an issue or pull request (repo:write token, write access)",
+    "tags": [
+     "issues"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/owner"
+     },
+     {
+      "$ref": "#/components/parameters/repo"
+     },
+     {
+      "$ref": "#/components/parameters/n"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssigneesIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "401": {
+      "$ref": "#/components/responses/Error"
+     },
+     "403": {
+      "$ref": "#/components/responses/Error"
+     },
+     "404": {
+      "$ref": "#/components/responses/Error"
+     },
+     "422": {
+      "$ref": "#/components/responses/Error"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "securitySchemes": {
+   "token": {
+    "type": "http",
+    "scheme": "bearer",
+    "description": "A Codr access token (codr_…), never a password."
+   }
+  },
+  "parameters": {
+   "owner": {
+    "name": "owner",
+    "in": "path",
+    "required": true,
+    "description": "Owner (person or organisation)",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "repo": {
+    "name": "repo",
+    "in": "path",
+    "required": true,
+    "description": "Repository name",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "n": {
+    "name": "n",
+    "in": "path",
+    "required": true,
+    "description": "Issue or pull request number",
+    "schema": {
+     "type": "integer"
+    }
+   },
+   "sha": {
+    "name": "sha",
+    "in": "path",
+    "required": true,
+    "description": "Commit id (40 hex)",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "path": {
+    "name": "path",
+    "in": "path",
+    "required": true,
+    "description": "Path inside the repository",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "ref": {
+    "name": "ref",
+    "in": "query",
+    "required": false,
+    "description": "Branch, tag or commit (default branch when absent)",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "path_q": {
+    "name": "path",
+    "in": "query",
+    "required": false,
+    "description": "Only commits touching this path",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "q": {
+    "name": "q",
+    "in": "query",
+    "required": false,
+    "description": "Search text",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "owner_q": {
+    "name": "owner",
+    "in": "query",
+    "required": false,
+    "description": "Only this owner's repositories",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "state": {
+    "name": "state",
+    "in": "query",
+    "required": false,
+    "description": "open (default), closed or all",
+    "schema": {
+     "type": "string",
+     "enum": [
+      "open",
+      "closed",
+      "all"
+     ]
+    }
+   },
+   "pstate": {
+    "name": "state",
+    "in": "query",
+    "required": false,
+    "description": "open (default), closed, merged or all",
+    "schema": {
+     "type": "string",
+     "enum": [
+      "open",
+      "closed",
+      "merged",
+      "all"
+     ]
+    }
+   },
+   "page": {
+    "name": "page",
+    "in": "query",
+    "required": false,
+    "description": "Page, from 1",
+    "schema": {
+     "type": "integer",
+     "minimum": 1
+    }
+   },
+   "per_page": {
+    "name": "per_page",
+    "in": "query",
+    "required": false,
+    "description": "Items per page (setting api.per_page_max bounds it)",
+    "schema": {
+     "type": "integer",
+     "minimum": 1
+    }
+   }
+  },
+  "schemas": {
+   "Error": {
+    "type": "object",
+    "properties": {
+     "error": {
+      "type": "string"
+     },
+     "message": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "error",
+     "message"
+    ]
+   },
+   "IssueIn": {
+    "type": "object",
+    "properties": {
+     "title": {
+      "type": "string",
+      "maxLength": 200
+     },
+     "body": {
+      "type": "string"
+     },
+     "state": {
+      "type": "string",
+      "enum": [
+       "open",
+       "closed"
+      ]
+     }
+    }
+   },
+   "CommentIn": {
+    "type": "object",
+    "properties": {
+     "body": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "body"
+    ]
+   },
+   "StatusIn": {
+    "type": "object",
+    "properties": {
+     "state": {
+      "type": "string",
+      "enum": [
+       "pending",
+       "success",
+       "failure",
+       "error"
+      ]
+     },
+     "context": {
+      "type": "string",
+      "maxLength": 100,
+      "default": "default"
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 200
+     },
+     "target_url": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "required": [
+     "state"
+    ]
+   },
+   "AssigneesIn": {
+    "type": "object",
+    "required": [
+     "assignees"
+    ],
+    "properties": {
+     "assignees": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "user names; an assignee needs write access, or read access and a part in the thread"
+     }
+    }
+   }
+  },
+  "responses": {
+   "Error": {
+    "description": "Error",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   }
+  }
+ }
+}

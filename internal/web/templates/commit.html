@@ -1,0 +1,44 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="commit-kepala kad">
+  <h1>{{$.Data.Commit.Subject}}</h1>
+  {{if $.Data.Commit.Body}}<pre class="commit-badan mono" tabindex="0">{{$.Data.Commit.Body}}</pre>{{end}}
+  <div class="meta-baris">
+    <span><span class="tersembunyi">{{$.T "ui.commit.full_hash"}} </span><b id="hash-penuh">{{$.Data.Commit.Hash}}</b> <button class="butang butang-kecil salin" type="button" hidden data-salin="hash-penuh" data-disalin-teks="{{$.T "ui.repo.copied"}}">{{$.T "ui.repo.copy"}}</button></span>
+    <span>{{$.T "ui.commit.author"}}: <b>{{$.Data.Commit.Author}}</b></span>
+    <span>{{$.T "ui.commit.date"}}: <b><time datetime="{{$.Data.Commit.When.Format "2006-01-02T15:04:05Z07:00"}}">{{rfc $.Data.Commit.When}}</time></b> ({{$.Ago $.Data.Commit.When}})</span>
+    {{range $.Data.Commit.Parents}}<span>{{$.T "ui.commit.parent"}}: <a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commit/{{.}}">{{short .}}</a></span>{{end}}
+    <span><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{$.Data.Commit.Hash}}">{{$.T "ui.commit.browse"}}</a></span>
+  </div>
+  {{if gt (len $.Data.Commit.Parents) 1}}<p class="nota-kecil">{{$.T "ui.commit.merge_note"}}</p>{{end}}
+  {{if $.Data.Checks}}{{template "semakan-ci" $}}{{end}}
+</div>
+<nav class="papar-diff isih" aria-label="{{$.T "ui.diff.view"}}"><a href="?"{{if not $.Data.Split}} aria-current="true"{{end}}>{{$.T "ui.diff.unified"}}</a><a href="?papar=belah"{{if $.Data.Split}} aria-current="true"{{end}}>{{$.T "ui.diff.split"}}</a></nav>
+<details class="lipat" open>
+  <summary class="kepala-bahagian">{{$.N "ui.commit.files" (len $.Data.Diff.Stats)}} · <span class="statistik-tambah">+{{$.Data.Diff.Added}}</span> <span class="statistik-buang">−{{$.Data.Diff.Deleted}}</span></summary>
+  <ul class="lejar lejar-rapat ringkasan-diff">
+  {{range $i, $f := $.Data.Diff.Stats}}
+    <li><a class="baris" href="#fail-{{$i}}">
+      <span class="baris-nama mono">{{if .OldPath}}{{$.T "ui.commit.renamed" .OldPath .Path}}{{else}}{{.Path}}{{end}}</span>
+      <span class="baris-meta">{{if .Binary}}{{$.T "ui.commit.binary"}}{{end}}</span>
+      <span class="baris-nilai">{{if not .Binary}}<span class="statistik-tambah">+{{.Added}}</span> <span class="statistik-buang">−{{.Deleted}}</span>{{end}}</span>
+    </a></li>
+  {{end}}
+  </ul>
+</details>
+{{range $i, $f := $.Data.Diff.Files}}
+<section class="kotak-kod diff-fail" id="fail-{{$i}}" tabindex="0">
+  <div class="kotak-kod-kepala"><span class="nama">{{if .OldPath}}{{$.T "ui.commit.renamed" .OldPath .Path}}{{else}}{{.Path}}{{end}}</span>
+    {{if .Binary}}<span class="meta">{{$.T "ui.commit.binary"}}</span>{{end}}
+    <span class="alat"><a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/blob/{{$.Data.Commit.Hash}}/{{.Path}}">{{$.T "ui.repo.tab_code"}}</a></span></div>
+  {{if .Lines}}{{$besar := and (gt $.Data.Fold 0) (gt (len .Lines) $.Data.Fold)}}{{if $besar}}<details class="lipat-diff"><summary>{{$.N "ui.diff.show_lines" (len .Lines)}}</summary>{{end}}{{if $.Data.Split}}<div class="diff diff-belah" tabindex="0" role="region" aria-label="{{.Path}}">
+  {{range splitDiff .Path .Lines}}{{if .Hunk}}<div class="baris-kod hunk"><span class="teks">{{.HTML}}</span></div>
+  {{else}}<div class="baris-kod"><span class="no">{{if .L.N}}{{.L.N}}{{end}}</span><span class="teks sisi sisi-{{if .L.Kind}}{{.L.Kind}}{{else}}kosong{{end}}">{{.L.HTML}}</span><span class="no">{{if .R.N}}{{.R.N}}{{end}}</span><span class="teks sisi sisi-{{if .R.Kind}}{{.R.Kind}}{{else}}kosong{{end}}">{{.R.HTML}}</span></div>
+  {{end}}{{end}}</div>{{else}}<div class="diff" tabindex="0" role="region" aria-label="{{.Path}}">
+  {{range hlDiff .Path .Lines}}{{if eq .Kind "hunk"}}<div class="baris-kod hunk"><span class="teks">{{.HTML}}</span></div>
+  {{else}}<div class="baris-kod{{if eq .Kind "add"}} tambah{{else if eq .Kind "del"}} buang{{end}}"><span class="no">{{if .Old}}{{.Old}}{{end}}</span><span class="no">{{if .New}}{{.New}}{{end}}</span><span class="tanda">{{if eq .Kind "add"}}+{{else if eq .Kind "del"}}−{{end}}</span><span class="teks">{{.HTML}}</span></div>
+  {{end}}{{end}}</div>{{end}}{{if $besar}}</details>{{end}}{{end}}
+</section>
+{{end}}
+{{if $.Data.Diff.Truncated}}<p class="nota-kecil">{{$.T "ui.commit.truncated" $.Data.Max}}</p>{{end}}
+{{template "foot" $}}

@@ -1,0 +1,138 @@
+{{template "head" $}}
+<h1>{{$.T "ui.account.title"}}</h1>
+<p class="meta prosa">{{$.T "ui.account.intro"}}</p>
+{{if $.Data.NewToken}}
+<section class="kotak-token" aria-live="polite">
+  <p class="berjaya">{{$.T "ui.account.token_created"}}</p>
+  <pre class="kod-arahan mono" tabindex="0">{{$.Data.NewToken}}</pre>
+  <p class="nota-kecil">{{$.T "ui.account.token_once" $.Data.HTTPHost $.User.Name}}</p>
+</section>
+{{end}}
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+<p class="data-saya"><a class="butang butang-kecil" href="/akaun/aktiviti">{{$.T "ui.activity.title"}}</a> <a class="butang butang-kecil" href="/akaun/data.json">{{$.T "ui.data.mine"}}</a> <span class="nota-kecil">{{$.T "ui.data.mine_hint"}}</span></p>
+
+<h2 class="kepala-bahagian" id="kunci">{{$.T "ui.account.keys"}}</h2>
+{{if $.Data.Keys}}
+<table class="tetapan">
+  <thead><tr><th>{{$.T "ui.account.fingerprint"}}</th><th>{{$.T "ui.account.key_title"}}</th><th>{{$.T "ui.account.created"}}</th><th><span class="tersembunyi">{{$.T "ui.account.remove"}}</span></th></tr></thead>
+  <tbody>
+  {{range $.Data.Keys}}
+  <tr>
+    <td class="kunci" data-l="{{$.T "ui.account.fingerprint"}}">{{.Fingerprint}}</td>
+    <td data-l="{{$.T "ui.account.key_title"}}">{{.Title}}</td>
+    <td class="meta" data-l="{{$.T "ui.account.created"}}">{{slice .CreatedAt 0 10}}</td>
+    <td><form action="/akaun/kunci/padam" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="id" value="{{.ID}}"><button class="butang butang-kecil butang-bahaya" type="submit">{{$.T "ui.account.remove"}}</button></form></td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}<p class="meta">{{$.T "ui.account.key_none"}}</p>{{end}}
+<form action="/akaun/kunci" method="post" class="borang-sempit" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.account.key_title"}}</span><input type="text" name="title" value="{{$.Data.KeyTitle}}" maxlength="80"></label>
+  <label class="medan"><span>{{$.T "ui.account.key_pub"}}</span><textarea name="key" rows="3" autocapitalize="none" spellcheck="false" required>{{$.Data.KeyPub}}</textarea></label>
+  <p class="nota-kecil">{{$.T "ui.account.key_hint"}}</p>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.account.key_add"}}</button>
+</form>
+{{if $.Data.SSHHint}}<p class="kepala-bahagian">{{$.T "ui.account.ssh_hint_label"}}</p><pre class="kod-arahan mono" tabindex="0">{{$.Data.SSHHint}}</pre>{{end}}
+<p class="kepala-bahagian">{{$.T "ui.account.clone_urls"}}</p>
+<pre class="kod-arahan mono" tabindex="0">{{$.T "ui.cmd.urls" $.Data.SSHHost $.User.Name $.Data.HTTPHost $.User.Name}}</pre>
+
+<h2 class="kepala-bahagian" id="token">{{$.T "ui.account.tokens"}}</h2>
+<p class="nota-kecil">{{$.T "ui.account.api_hint" $.Data.HTTPHost $.Data.HTTPHost}}</p>
+{{if $.Data.Tokens}}
+<table class="tetapan">
+  <thead><tr><th>{{$.T "ui.account.token_name"}}</th><th>{{$.T "ui.account.scopes"}}</th><th>{{$.T "ui.account.expires"}}</th><th>{{$.T "ui.account.last_used"}}</th><th><span class="tersembunyi">{{$.T "ui.account.remove"}}</span></th></tr></thead>
+  <tbody>
+  {{range $.Data.Tokens}}
+  <tr>
+    <td data-l="{{$.T "ui.account.token_name"}}">{{.Name}}</td>
+    <td class="kunci" data-l="{{$.T "ui.account.scopes"}}">{{range $i, $sc := .Scopes}}{{if $i}}, {{end}}{{$sc}}{{end}}</td>
+    <td class="meta" data-l="{{$.T "ui.account.expires"}}">{{slice .ExpiresAt 0 10}}</td>
+    <td class="meta" data-l="{{$.T "ui.account.last_used"}}">{{if .LastUsedAt}}{{slice .LastUsedAt 0 10}}{{else}}{{$.T "ui.account.never"}}{{end}}</td>
+    <td><form action="/akaun/token/padam" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="id" value="{{.ID}}"><button class="butang butang-kecil butang-bahaya" type="submit">{{$.T "ui.account.remove"}}</button></form></td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}<p class="meta">{{$.T "ui.account.token_none"}}</p>{{end}}
+<form action="/akaun/token" method="post" class="borang-sempit" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.account.token_name"}}</span><input type="text" name="name" value="{{$.Data.TokenName}}" maxlength="80"></label>
+  <fieldset class="medan pilihan">
+    <legend>{{$.T "ui.account.scopes"}}</legend>
+    {{range $.Data.Scopes}}<label><input type="checkbox" name="scope" value="{{.Value}}"{{if eq .Value "repo:read"}} checked{{end}}> {{$.T .Key}}</label>{{end}}
+  </fieldset>
+  <label class="medan"><span>{{$.T "ui.account.days" $.Data.MaxDays}}</span><input type="number" name="days" value="{{$.Data.DefaultDays}}" min="1" max="{{$.Data.MaxDays}}" inputmode="numeric"></label>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.account.token_add"}}</button>
+</form>
+
+<h2 class="kepala-bahagian" id="dualangkah">{{$.T "ui.2fa.title"}}</h2>
+{{if $.Data.TwoFA.On}}
+<p class="meta"><span class="lencana lencana-awam">{{$.T "ui.2fa.on"}}</span> {{$.N "ui.2fa.unused" $.Data.TwoFA.Unused}}</p>
+<div class="medan-dua">
+  <form action="/akaun/2fa/pemulihan" method="post" class="borang-sempit" novalidate>
+    <input type="hidden" name="csrf" value="{{$.CSRF}}">
+    <label class="medan"><span>{{$.T "ui.2fa.code"}}</span><input class="kod-2fa mono" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="14" required></label>
+    <button class="butang" type="submit">{{$.T "ui.2fa.new_codes"}}</button>
+  </form>
+  <form action="/akaun/2fa/matikan" method="post" class="borang-sempit" novalidate>
+    <input type="hidden" name="csrf" value="{{$.CSRF}}">
+    <label class="medan"><span>{{$.T "ui.login.password"}}</span><input type="password" name="password" autocomplete="current-password" required></label>
+    <label class="medan"><span>{{$.T "ui.2fa.code"}}</span><input class="kod-2fa mono" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="14" required></label>
+    <button class="butang butang-bahaya" type="submit">{{$.T "ui.2fa.turn_off"}}</button>
+  </form>
+</div>
+{{else}}
+<p class="meta prosa">{{$.T "ui.2fa.off_intro"}}</p>
+<p><a class="butang" href="/akaun/2fa">{{$.T "ui.2fa.set_up"}}</a></p>
+{{end}}
+
+{{if $.Data.OIDCLinks}}
+<h2 class="kepala-bahagian" id="oidc">{{$.T "ui.oidc.links"}}</h2>
+<ul class="lejar lejar-rapat">
+{{range $.Data.OIDCLinks}}
+  <li class="baris">
+    <span class="baris-nama">{{.Email}} <span class="meta mono">{{.Issuer}}</span></span>
+    <span class="baris-meta">{{if .LastUsedAt}}{{$.T "ui.oidc.last_used" ($.Ago (parseTime .LastUsedAt))}}{{end}}</span>
+    <form class="baris-nilai" action="/akaun/oidc/padam" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="issuer" value="{{.Issuer}}"><input type="hidden" name="subject" value="{{.Subject}}">
+      <button class="butang butang-kecil" type="submit">{{$.T "ui.oidc.unlink"}}</button></form>
+  </li>
+{{end}}
+</ul>
+{{end}}
+<h2 class="kepala-bahagian" id="sesi">{{$.T "ui.sessions.title"}}</h2>
+<ul class="lejar lejar-rapat lejar-sesi">
+{{range $.Data.Sessions}}
+  <li class="baris">
+    <span class="baris-nama">{{if .Current}}<span class="lencana lencana-cermin">{{$.T "ui.sessions.this"}}</span> {{end}}<span class="sesi-ua">{{if .UserAgent}}{{.UserAgent}}{{else}}{{$.T "ui.sessions.unknown"}}{{end}}</span></span>
+    <span class="baris-meta">{{.IP}} · {{$.T "ui.sessions.since" ($.Ago (parseTime .CreatedAt))}}</span>
+    <span class="baris-nilai">{{if not .Current}}<form action="/akaun/sesi/satu" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="id" value="{{.ID}}"><button class="butang butang-kecil butang-bahaya" type="submit">{{$.T "ui.sessions.end"}}</button></form>{{end}}</span>
+  </li>
+{{end}}
+</ul>
+{{if gt (len $.Data.Sessions) 1}}<form action="/akaun/sesi/lain" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang" type="submit">{{$.T "ui.sessions.end_others"}}</button></form>{{end}}
+
+<h2 class="kepala-bahagian" id="emel">{{$.T "ui.account.email"}}</h2>
+<form action="/akaun/emel" method="post" class="borang-sempit" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.account.email_addr"}}</span><input type="email" name="email" value="{{$.User.Email}}" maxlength="254" autocomplete="email" inputmode="email"></label>
+  <fieldset class="medan pilihan">
+    <legend>{{$.T "ui.account.email_notify_legend"}}</legend>
+    <label><input type="checkbox" name="notify" value="1"{{if $.Data.EmailNotify}} checked{{end}}> {{$.T "ui.account.email_notify"}}</label>
+  </fieldset>
+  <p class="nota-kecil">{{$.T "ui.account.email_hint"}}</p>
+  <button class="butang" type="submit">{{$.T "ui.account.email_save"}}</button>
+</form>
+
+<h2 class="kepala-bahagian" id="katalaluan">{{$.T "ui.account.password"}}</h2>
+<form action="/akaun/katalaluan" method="post" class="borang-sempit" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <input type="hidden" name="username" value="{{$.User.Name}}" autocomplete="username">
+  <label class="medan"><span>{{$.T "ui.account.pw_current"}}</span><input type="password" name="current" autocomplete="current-password" required></label>
+  <label class="medan"><span>{{$.T "ui.account.pw_new"}}</span><input type="password" name="password" autocomplete="new-password" minlength="{{$.Data.PasswordMinLen}}" required></label>
+  <label class="medan"><span>{{$.T "ui.account.pw_again"}}</span><input type="password" name="again" autocomplete="new-password" required></label>
+  <p class="nota-kecil">{{$.T "ui.account.pw_hint" $.Data.PasswordMinLen}}</p>
+  <button class="butang" type="submit">{{$.T "ui.account.pw_change"}}</button>
+</form>
+{{template "foot" $}}

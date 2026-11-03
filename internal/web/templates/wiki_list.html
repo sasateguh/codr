@@ -1,0 +1,12 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="kepala-senarai">
+  <h1>{{$.T "ui.wiki.all"}} <span class="kiraan">{{len $.Data.Pages}}</span></h1>
+  {{if $.Data.CanEdit}}<a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/_baharu">{{$.T "ui.wiki.new"}}</a>{{end}}
+</div>
+{{if $.Data.Pages}}
+<ul class="lejar lejar-rapat">{{range $.Data.Pages}}
+  <li class="baris"><span class="baris-nama"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{.Name}}">{{.Title}}</a></span><span class="baris-nilai">{{size .Size}}</span></li>
+{{end}}</ul>
+{{else}}<p class="meta kosong-kecil">{{$.T "ui.wiki.empty_title"}}</p>{{end}}
+{{template "foot" $}}

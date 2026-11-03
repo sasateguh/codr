@@ -1,0 +1,19 @@
+# keadaan hidup — tidak pernah dikomit
+/data/
+/config.toml
+/bin/
+/.scratch/
+*.sqlite
+*.sqlite-*
+# production state + deploy artefacts (secrets), never committed
+/state/
+/deploy/amcd
+/deploy/CURRENT_TAG*
+/deploy/PREVIOUS_TAG
+/deploy/runner/codr-runner
+/runner/
+# binari binaan tempatan + cache Python — tidak pernah dikomit
+/cmd/codr/codr
+/cmd/codr-runner/codr-runner
+__pycache__/
+*.pyc

@@ -1,0 +1,27 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<form class="carian" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/cari" method="get" role="search">
+  <input type="hidden" name="ref" value="{{$.Data.Ref}}">
+  <label class="tersembunyi" for="cari-repo">{{$.T "ui.search.placeholder"}}</label>
+  <input id="cari-repo" type="search" name="q" value="{{$.Data.Query}}" placeholder="{{$.T "ui.search.placeholder"}}" autocomplete="off" autofocus>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.search.submit"}}</button>
+  <span class="meta">{{$.T "ui.search.in_ref" $.Data.Ref}}</span>
+</form>
+{{if $.Data.TooShort}}<p class="ralat" role="alert">{{$.T "ui.search.short"}}</p>
+{{else if $.Data.Query}}
+  {{if and (not $.Data.Files) (not $.Data.Content)}}<p class="kosong">{{$.T "ui.search.none" $.Data.Query}}</p>{{end}}
+  {{if $.Data.Files}}
+  <p class="kepala-bahagian">{{$.T "ui.search.files" (len $.Data.Files)}}{{if $.Data.MoreFile}} {{$.T "ui.search.more_files"}}{{end}}</p>
+  <ul class="lejar lejar-rapat">{{range $.Data.Files}}<li><a class="baris mono" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/blob/{{$.Data.Ref}}/{{.}}">{{.}}</a></li>{{end}}</ul>
+  {{end}}
+  {{if $.Data.Content}}
+  <p class="kepala-bahagian">{{$.T "ui.search.hits" $.Data.NHits}}{{if $.Data.Capped}} · {{$.T "ui.search.capped" $.Data.MaxHits}}{{end}}</p>
+  {{range $.Data.Content}}
+  <div class="kotak-kod padanan">
+    <div class="kotak-kod-kepala"><a class="nama" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/blob/{{$.Data.Ref}}/{{.Path}}">{{.Path}}</a></div>
+    <div class="kod">{{$p := .Path}}{{range .Hits}}<div class="baris-kod"><span class="no"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/blob/{{$.Data.Ref}}/{{$p}}#L{{.N}}">{{.N}}</a></span><span class="teks">{{.Text}}</span></div>{{end}}</div>
+  </div>
+  {{end}}
+  {{end}}
+{{else}}<p class="meta prosa">{{$.T "ui.search.hint"}}</p>{{end}}
+{{template "foot" $}}

@@ -1,0 +1,26 @@
+{{template "head" $}}
+<div class="borang-sempit borang-kad kad">
+  <h1>{{$.T "ui.new.title"}}</h1>
+  <form action="/baharu" method="post" novalidate>
+    <input type="hidden" name="csrf" value="{{$.CSRF}}">
+    {{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+    {{if gt (len $.Data.Owners) 1}}<label class="medan"><span>{{$.T "ui.new.owner"}}</span><select name="owner">{{range $.Data.Owners}}<option value="{{.}}"{{if eq . $.Data.Owner}} selected{{end}}>{{.}}</option>{{end}}</select></label>{{end}}
+    <label class="medan"><span>{{$.T "ui.new.name"}}</span><input type="text" name="name" value="{{$.Data.Name}}" autocapitalize="none" spellcheck="false" required autofocus></label>
+    <label class="medan"><span>{{$.T "ui.new.desc"}}</span><input type="text" name="desc" value="{{$.Data.Desc}}" maxlength="255"></label>
+    <fieldset class="medan pilihan">
+      <legend>{{$.T "ui.new.visibility"}}</legend>
+      <label><input type="radio" name="visibility" value="private"{{if $.Data.Private}} checked{{end}}> {{$.T "ui.new.private"}}</label>
+      <label><input type="radio" name="visibility" value="public"{{if not $.Data.Private}} checked{{end}}> {{$.T "ui.new.public"}}</label>
+    </fieldset>
+    {{if $.Data.CanMirror}}
+    <label class="medan"><span>{{$.T "ui.new.url"}}</span><input type="url" name="url" value="{{$.Data.URL}}" placeholder="https://github.com/…/….git" autocapitalize="none" spellcheck="false"></label>
+    <p class="nota-kecil">{{$.T "ui.new.url_hint"}}</p>
+    <label class="medan"><span>{{$.T "ui.new.token"}}</span><input type="password" name="token" autocomplete="off"></label>
+    <p class="nota-kecil">{{$.T "ui.new.token_hint"}}</p>
+    {{end}}
+    <button class="butang butang-utama" type="submit">{{$.T "ui.new.submit"}}</button>
+  </form>
+  <p class="kepala-bahagian">{{$.T "ui.new.push_hint"}}</p>
+  <pre class="kod-arahan mono" tabindex="0">{{$.T "ui.cmd.push_new" $.Data.SSHHost $.Data.User}}</pre>
+</div>
+{{template "foot" $}}

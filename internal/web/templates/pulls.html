@@ -1,0 +1,44 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="kepala-senarai isu-kepala">
+  <nav class="isih" aria-label="{{$.T "ui.issue.state"}}">
+    <a href="{{$.Data.Link "open" 1}}"{{if eq $.Data.State "open"}} aria-current="true"{{end}}>{{$.T "ui.issue.open_n" $.Data.Open}}</a>
+    <a href="{{$.Data.Link "closed" 1}}"{{if eq $.Data.State "closed"}} aria-current="true"{{end}}>{{$.T "ui.pull.closed_n" $.Data.ClosedN}}</a>
+  </nav>
+  <form class="carian isu-cari" method="get" role="search">
+    <input type="hidden" name="keadaan" value="{{$.Data.State}}">
+    {{if $.Data.Assignee}}<input type="hidden" name="penerima" value="{{$.Data.Assignee}}">{{end}}
+    <label class="tersembunyi" for="cari-pr">{{$.T "ui.pull.search"}}</label>
+    <input id="cari-pr" type="search" name="q" value="{{$.Data.Query}}" placeholder="{{$.T "ui.pull.search"}}" autocomplete="off">
+  </form>
+  {{if $.Data.CanCreate}}<a class="butang butang-utama" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/baharu">{{$.T "ui.pull.new"}}</a>{{end}}
+</div>
+{{template "tapis-penerima" (dict "P" $ "Mine" (and $.User ($.Data.Mine $.User.Name)) "On" $.Data.Assignee)}}
+{{if $.Data.Pulls}}
+<ul class="lejar lejar-isu">
+{{range $.Data.Pulls}}
+  <li><a class="baris" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{.Number}}">
+    <span class="keadaan pr {{.State}}" aria-hidden="true"></span>
+    <span class="baris-nama">{{.Title}}</span>
+    <span class="baris-meta">#{{.Number}} · <span class="mono">{{.HeadBranch}} → {{.BaseBranch}}</span> · {{if .Merged}}{{$.T "ui.pull.merged_by" .MergedBy ($.Ago (parseTime .ClosedAt))}}{{else if .Open}}{{$.T "ui.issue.opened_by" .Author ($.Ago (parseTime .CreatedAt))}}{{else}}{{$.T "ui.issue.closed_by" .Author ($.Ago (parseTime .ClosedAt))}}{{end}}{{with index $.Data.Assigned .Number}} · {{$.T "ui.assign.list" (joinList .)}}{{end}}</span>
+    <span class="baris-nilai">{{if .Approvals}}<span class="statistik-tambah lulus-n">{{.Approvals}}</span> {{end}}{{if .Comments}}{{$.N "ui.issue.comments_n" .Comments}}{{end}}</span>
+  </a></li>
+{{end}}
+</ul>
+{{if gt $.Data.Pages 1}}
+<nav class="mukasurat" aria-label="{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}">
+  {{if gt $.Data.Page 1}}<a href="{{$.Data.Link $.Data.State (sub $.Data.Page 1)}}">← {{$.T "ui.repos.prev"}}</a>{{end}}
+  <span class="meta">{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}</span>
+  {{if lt $.Data.Page $.Data.Pages}}<a href="{{$.Data.Link $.Data.State (add $.Data.Page 1)}}">{{$.T "ui.repos.next"}} →</a>{{end}}
+</nav>
+{{end}}
+{{else}}
+<div class="kosong kad">
+  <p>{{if or $.Data.Query $.Data.Assignee}}{{$.T "ui.issue.none_match"}}{{else if eq $.Data.State "closed"}}{{$.T "ui.pull.none_closed"}}{{else}}{{$.T "ui.pull.none_open"}}{{end}}</p>
+  {{if or $.Data.Query $.Data.Assignee}}<p><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr?keadaan={{$.Data.State}}">{{$.T "ui.list.clear_filters"}}</a></p>
+  {{else if and (eq $.Data.State "open") $.Data.ClosedN}}<p><a href="{{$.Data.Link "closed" 1}}">{{$.T "ui.list.see_closed" $.Data.ClosedN}}</a></p>{{end}}
+  {{if $.Data.CanCreate}}<p class="meta">{{$.T "ui.pull.how"}}</p><p><a class="butang butang-utama" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/baharu">{{$.T "ui.pull.new"}}</a></p>
+  {{else if $.Data.ReadyLogin}}<p class="meta"><a href="/login?next={{$.Path}}">{{$.T "ui.nav.login"}}</a></p>{{end}}
+</div>
+{{end}}
+{{template "foot" $}}

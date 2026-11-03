@@ -1,0 +1,71 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+{{if $.Data.Mirror}}<p class="meta cermin">{{$.T "ui.repo.mirror_of" $.Data.Mirror.URL}} · {{if $.Data.Mirror.Error}}<span class="statistik-buang">{{$.T "ui.repo.mirror_error" $.Data.Mirror.Error}}</span>{{else if $.Data.Mirror.Pending}}{{$.T "ui.repo.mirror_pending"}}{{else}}{{$.T "ui.repo.mirror_fresh" ($.Ago $.Data.Mirror.OKAt)}}{{end}}</p>{{end}}
+{{if $.Data.CanImport}}<form class="borang-import" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/import-github" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang butang-kecil" type="submit">{{$.T "ui.import.button"}}</button> <span class="nota-kecil">{{$.T "ui.import.hint"}}</span></form>{{end}}
+{{if not $.Data.Has}}
+<div class="repo-atas">
+  <div class="kosong kad">
+    <p><strong>{{$.T "ui.repo.empty_title"}}</strong></p>
+    <p class="meta">{{$.T "ui.repo.empty_hint"}}</p>
+    <pre class="kod-arahan mono" tabindex="0">{{$.T "ui.cmd.first_push" $.Data.SSHURL $.Data.Branch}}</pre>
+  </div>
+  {{template "kotak-klon" $}}
+</div>
+{{else}}
+<div class="repo-badan{{if $.Data.Root}} repo-badan-akar{{end}}">
+  <div class="repo-alat">
+    <div class="alat-ref">
+      {{template "pemilih-ref" $}}
+      <span class="meta"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/refs">{{$.N "ui.repo.branches" (len $.Data.Branches)}} · {{$.N "ui.repo.tags" (len $.Data.Tags)}}</a>{{if $.Data.Root}} · <a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commits/{{$.Data.Ref}}">{{$.N "ui.repo.commits" $.Data.Commits}}</a>{{end}}</span>
+    </div>
+    {{if $.Data.Latest}}
+    <p class="kepala-bahagian">{{$.T "ui.repo.latest"}}</p>
+    <ul class="lejar commit-terbaru lejar-rapat">{{template "baris-commit" (dict "Owner" $.Data.Repo.Owner "Name" $.Data.Repo.Name "C" $.Data.Latest "P" $)}}</ul>
+    {{end}}
+  </div>
+  {{if $.Data.Root}}{{template "kotak-klon" $}}{{end}}
+  <div class="repo-fail">
+    {{if not $.Data.Root}}
+    <p class="breadcrumb"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{$.Data.Ref}}">{{$.Data.Repo.Name}}</a>{{range $.Data.Crumbs}}<span class="pemisah">/</span><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{$.Data.Ref}}/{{.Path}}">{{.Name}}</a>{{end}}</p>
+    {{end}}
+    <ul class="lejar lejar-rapat lejar-pokok">
+    {{range $.Data.Entries}}{{$c := index $.Data.Last .Name}}
+      <li class="baris pokok"><a class="baris-nama{{if .IsDir}} folder{{else}} fail{{end}}" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/{{if .IsDir}}tree{{else}}blob{{end}}/{{$.Data.Ref}}/{{join $.Data.Path .Name}}">{{.Name}}{{if .IsDir}}/{{end}}</a>
+        {{if $c}}<a class="baris-meta pokok-commit" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commit/{{$c.Hash}}" title="{{$c.Short}} · {{$c.Author}}">{{$c.Subject}}</a>{{else}}<span class="baris-meta"></span>{{end}}
+        <span class="baris-nilai">{{if not .IsDir}}<span class="pokok-saiz">{{size .Size}}</span>{{end}}{{if $c}}<time datetime="{{$c.When.Format "2006-01-02T15:04:05Z07:00"}}" title="{{rfc $c.When}}">{{$.Ago $c.When}}</time>{{end}}</span>
+      </li>
+    {{end}}
+    </ul>
+    {{if $.Data.Root}}
+    <section class="readme" aria-labelledby="readme-tajuk">
+      <h2 class="readme-kepala" id="readme-tajuk"><span class="readme-ikon" aria-hidden="true"></span>{{if $.Data.README}}{{$.Data.README}}{{else}}{{$.T "ui.repo.readme"}}{{end}}</h2>
+      {{if $.Data.ReadmeOK}}
+        {{if $.Data.Removed}}<p class="nota-kecil">{{$.T "ui.repo.readme_sanitised"}}</p>{{end}}
+        {{if hasSuffix $.Data.README ".md"}}<article class="prosa prosa-kad">{{$.Data.Readme}}</article>{{else}}<pre class="kotak-kod kod" tabindex="0">{{$.Data.Readme}}</pre>{{end}}
+      {{else}}<p class="meta readme-tiada">{{$.T "ui.repo.no_readme"}}</p>{{end}}
+    </section>
+    {{end}}
+  </div>
+  {{if $.Data.Root}}{{with $.Data.About}}
+  <aside class="tentang kad" aria-labelledby="tentang-tajuk">
+    <h2 class="kepala-bahagian" id="tentang-tajuk">{{$.T "ui.about.title"}}</h2>
+    {{if $.Data.Repo.Description}}<p class="tentang-huraian">{{$.Data.Repo.Description}}</p>{{end}}
+    <dl class="tentang-angka">
+      <div><dt>{{$.T "ui.about.commits"}}</dt><dd><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commits/{{$.Data.Ref}}">{{$.Data.Commits}}</a></dd></div>
+      <div><dt>{{$.T "ui.about.branches"}}</dt><dd><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/refs">{{len $.Data.Branches}}</a></dd></div>
+      <div><dt>{{$.T "ui.about.tags"}}</dt><dd><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/refs">{{len $.Data.Tags}}</a></dd></div>
+      <div><dt>{{$.T "ui.about.files"}}</dt><dd>{{.Files}}{{if .Capped}}+{{end}}</dd></div>
+      <div><dt>{{$.T "ui.about.size"}}</dt><dd>{{size .Bytes}}</dd></div>
+      {{if $.Data.Tags}}<div><dt>{{$.T "ui.about.latest_tag"}}</dt><dd class="mono"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{(index $.Data.Tags 0).Name}}">{{(index $.Data.Tags 0).Name}}</a></dd></div>{{end}}
+    </dl>
+    {{if .Licence}}<p class="tentang-lesen"><span class="lesen-ikon" aria-hidden="true"></span>{{.Licence}}</p>{{end}}
+    {{if .Langs}}
+    <h3 class="kepala-bahagian">{{$.T "ui.about.languages"}}</h3>
+    <svg class="bar-bahasa" viewBox="0 0 1000 10" preserveAspectRatio="none" aria-hidden="true">{{range .Langs}}<rect class="{{.Hue}}" x="{{.X}}" width="{{.W}}" height="10"/>{{end}}</svg>
+    <ul class="senarai-bahasa">{{range .Langs}}<li><span class="titik-bahasa {{.Hue}}" aria-hidden="true"></span><span>{{if .Other}}{{$.T "ui.about.other"}}{{else}}{{.Name}}{{end}}</span><span class="mono lembut">{{$.T "ui.about.pct" .Pct}}</span></li>{{end}}</ul>
+    {{end}}
+  </aside>
+  {{end}}{{end}}
+</div>
+{{end}}
+{{template "foot" $}}

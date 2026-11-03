@@ -1,0 +1,21 @@
+{{template "head" $}}
+<h1>{{$.T "ui.settings.title"}}</h1>
+<p class="meta prosa">{{$.T "ui.settings.intro"}}</p>
+<table class="tetapan">
+  <thead><tr><th>{{$.T "ui.settings.key"}}</th><th>{{$.T "ui.settings.value"}}</th><th>{{$.T "ui.settings.type"}}</th><th>{{$.T "ui.settings.updated"}}</th></tr></thead>
+  <tbody>
+  {{range $.Data}}
+  <tr>
+    <td class="kunci" data-l="{{$.T "ui.settings.key"}}"><label for="t-{{.Key}}">{{.Key}}</label></td>
+    <td data-l="{{$.T "ui.settings.value"}}"><form action="/admin/tetapan" method="post">
+      <input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="key" value="{{.Key}}">
+      {{if eq .Type "bool"}}<select id="t-{{.Key}}" name="value"><option value="true"{{if eq .Value "true"}} selected{{end}}>{{$.T "ui.bool.true"}}</option><option value="false"{{if eq .Value "false"}} selected{{end}}>{{$.T "ui.bool.false"}}</option></select>
+      {{else}}<input id="t-{{.Key}}" type="{{if eq .Type "int"}}number{{else}}text{{end}}" name="value" value="{{.Value}}">{{end}}
+      <button class="butang butang-kecil" type="submit">{{$.T "ui.settings.save"}}</button></form></td>
+    <td class="meta" data-l="{{$.T "ui.settings.type"}}">{{.Type}}</td>
+    <td class="meta" data-l="{{$.T "ui.settings.updated"}}">{{slice .UpdatedAt 0 10}}</td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{template "foot" $}}

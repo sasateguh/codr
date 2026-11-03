@@ -1,0 +1,17 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<p class="kepala-bahagian">{{$.T "ui.refs.branches"}}</p>
+{{if $.Data.Branches}}<ul class="lejar lejar-rapat">
+{{range $.Data.Branches}}<li class="baris-dengan-tindakan"><a class="baris" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{.Name}}">
+  <span class="baris-nama mono">{{.Name}}{{if eq .Name $.Data.Branch}} <span class="lencana">{{$.T "ui.refs.default"}}</span>{{end}}</span>
+  <span class="baris-meta">{{short .Hash}}</span>
+  <span class="baris-nilai"><time datetime="{{.When.Format "2006-01-02T15:04:05Z07:00"}}" title="{{rfc .When}}">{{$.Ago .When}}</time></span></a>{{if and $.Data.CanPull (ne .Name $.Data.Branch)}}<a class="butang butang-kecil baris-tindakan" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/baharu?head={{.Name}}&base={{$.Data.Branch}}">{{$.T "ui.pull.open_from"}}</a>{{end}}</li>{{end}}
+</ul>{{else}}<p class="meta">{{$.T "ui.refs.none_branches"}}</p>{{end}}
+<p class="kepala-bahagian">{{$.T "ui.refs.tags"}}</p>
+{{if $.Data.Tags}}<ul class="lejar lejar-rapat">
+{{range $.Data.Tags}}<li><a class="baris" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{.Name}}">
+  <span class="baris-nama mono">{{.Name}}</span>
+  <span class="baris-meta">{{short .Hash}}</span>
+  <span class="baris-nilai"><time datetime="{{.When.Format "2006-01-02T15:04:05Z07:00"}}" title="{{rfc .When}}">{{$.Ago .When}}</time></span></a></li>{{end}}
+</ul>{{else}}<p class="meta">{{$.T "ui.refs.none_tags"}}</p>{{end}}
+{{template "foot" $}}

@@ -1,0 +1,15 @@
+{{template "head" $}}
+<div class="login login-satu">
+  <div class="kad login-kad">
+    <h1>{{$.T "ui.2fa.login_title"}}</h1>
+    <p class="meta">{{$.T "ui.2fa.login_intro"}}</p>
+    <form action="/login/kod" method="post" class="borang" novalidate>
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      {{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+      <label class="medan"><span>{{$.T "ui.2fa.code"}}</span><input class="kod-2fa mono" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" autocapitalize="none" spellcheck="false" maxlength="14" required autofocus></label>
+      <button class="butang butang-utama" type="submit">{{$.T "ui.2fa.verify"}}</button>
+    </form>
+    <p class="nota-kecil">{{$.T "ui.2fa.login_recovery"}}</p>
+  </div>
+</div>
+{{template "foot" $}}

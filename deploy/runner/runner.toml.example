@@ -1,0 +1,21 @@
+# codr-runner (D89). Salin ke state/runner.toml (0600): ia memegang token dan rahsia webhook.
+# Copy to state/runner.toml (0600): it holds the token and the webhook secret.
+listen         = "0.0.0.0:3200"             # dalam kontena; hos melihatnya di 127.0.0.1:3200
+forge_url      = "http://codr:3000"         # Codr di rangkaian dalaman (klon + API status)
+public_url     = "https://git.example.com"  # pautan log: <public_url>/ci/log/<id>
+token          = "codr_…"                   # token repo:write akaun pelari (cth. codr-ci, kolaborator tulis)
+webhook_secret = ""                         # pilihan: rahsia kongsi; Codr menjana satu rahsia SETIAP webhook, jadi biasanya [secrets]
+lang           = "ms-MY"
+work_dir       = "/srv/codr-runner/work"   # laluan SAMA di hos dan kontena
+log_dir        = "/srv/codr-runner/log"
+concurrency    = 1
+timeout_minutes = 15
+memory         = "1g"
+cpus           = "1"
+pids           = 256
+tmp_size       = "256m"
+allow_network  = false                      # true = kerja boleh memuat turun kebergantungan
+repos          = ["you/*"]                # repo yang dilayan (glob); kosong = semua yang webhooknya sah
+
+[secrets]                                   # rahsia webhook setiap repo (dipapar sekali semasa webhook dicipta)
+"you/project" = "…"

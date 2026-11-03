@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="t">
+  <title id="t">Codr</title>
+  <defs>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1f26"/>
+      <stop offset="1" stop-color="#121418"/>
+    </linearGradient>
+  </defs>
+  <!-- ink tile: one dark surface, a hairline of light on the top edge for depth, nothing glossy -->
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="url(#tile)"/>
+  <rect x="17" y="17" width="222" height="222" rx="55" fill="none" stroke="url(#rim)" stroke-width="2"/>
+  <!-- mark: the letter C drawn as a git history (one line bending back on itself), commit nodes as rings at both
+       ends and at the turn. The landing page's 3D graph is the same C seen from the front. -->
+  <path d="M173.5 81.9 A62 62 0 1 0 173.5 174.1" fill="none" stroke="#f4f4f1" stroke-width="18" stroke-linecap="round"/>
+  <g fill="#f4f4f1"><circle cx="173.5" cy="81.9" r="19"/><circle cx="70" cy="128" r="19"/><circle cx="173.5" cy="174.1" r="19"/></g>
+  <g fill="#15171c"><circle cx="173.5" cy="81.9" r="8"/><circle cx="70" cy="128" r="8"/><circle cx="173.5" cy="174.1" r="8"/></g>
+</svg>

@@ -1,0 +1,37 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<h1 class="tajuk-muka">{{if $.Data.Upstream}}{{$.T "ui.fork.pr_title" $.Data.UpstreamPath}}{{else}}{{$.T "ui.pull.new"}}{{end}}</h1>
+{{if $.Data.Upstream}}<p class="meta">{{$.T "ui.fork.pr_intro" $.Data.UpstreamPath}}</p>{{end}}
+<form class="banding" method="get" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{if $.Data.Upstream}}hulu{{else}}baharu{{end}}">
+  <label class="medan medan-sebaris"><span>{{if $.Data.Upstream}}{{$.T "ui.fork.base_in" $.Data.UpstreamPath}}{{else}}{{$.T "ui.pull.base"}}{{end}}</span><select name="base">{{range (or $.Data.BaseBranches $.Data.Branches)}}<option value="{{.Name}}"{{if eq .Name $.Data.Base}} selected{{end}}>{{.Name}}</option>{{end}}</select></label>
+  <span class="anak-panah" aria-hidden="true">←</span>
+  <label class="medan medan-sebaris"><span>{{$.T "ui.pull.head"}}</span><select name="head">{{range $.Data.Branches}}<option value="{{.Name}}"{{if eq .Name $.Data.Head}} selected{{end}}>{{.Name}}</option>{{end}}</select></label>
+  <button class="butang" type="submit">{{$.T "ui.pull.compare"}}</button>
+</form>
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+{{if $.Data.Existing}}
+<p class="flash"><a href="/{{if $.Data.Upstream}}{{$.Data.UpstreamPath}}{{else}}{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}{{end}}/pr/{{$.Data.Existing.Number}}">{{$.T "ui.pull.exists" $.Data.Existing.Number}}</a></p>
+{{else if $.Data.Same}}
+<p class="meta kosong-kecil">{{$.T "ui.pull.nothing"}}</p>
+{{else if $.Data.Commits}}
+<p class="meta ringkas-banding">{{$.N "ui.repo.commits" (len $.Data.Commits)}} · {{$.N "ui.commit.files" $.Data.Files}} · <span class="statistik-tambah">+{{$.Data.Added}}</span> <span class="statistik-buang">−{{$.Data.Deleted}}</span>{{if $.Data.Conflict}} · <span class="statistik-buang">{{$.T "ui.pull.conflict_n" (len $.Data.Conflict)}}</span>{{end}}</p>
+<div class="isu-grid">
+  <form class="borang-kad kad borang-isu" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr{{if $.Data.Upstream}}/hulu{{end}}" method="post" novalidate>
+    <input type="hidden" name="csrf" value="{{$.CSRF}}">
+    <input type="hidden" name="head" value="{{$.Data.Head}}">
+    <input type="hidden" name="base" value="{{$.Data.Base}}">
+    <label class="medan"><span>{{$.T "ui.issue.field_title"}}</span><input type="text" name="title" value="{{$.Data.Title}}" maxlength="200" required autofocus></label>
+    <label class="medan"><span>{{$.T "ui.issue.field_body"}}</span><textarea name="body" rows="8">{{$.Data.Body}}</textarea></label>
+    <p class="nota-kecil">{{$.T "ui.issue.markdown_hint"}}</p>
+    <button class="butang butang-utama" type="submit">{{$.T "ui.pull.submit"}}</button>
+    <a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr">{{$.T "ui.issue.cancel"}}</a>
+  </form>
+  <aside>
+    <p class="kepala-bahagian">{{$.T "ui.repo.tab_commits"}}</p>
+    <ul class="lejar lejar-rapat lejar-commit">
+    {{range $.Data.Commits}}{{template "baris-commit" (dict "Owner" $.Data.Repo.Owner "Name" $.Data.Repo.Name "C" . "P" $)}}{{end}}
+    </ul>
+  </aside>
+</div>
+{{end}}
+{{template "foot" $}}

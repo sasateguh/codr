@@ -1,0 +1,16 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="kepala-senarai">
+  <h1>{{$.T "ui.wiki.history_of" $.Data.Title}}</h1>
+  <a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{$.Data.Page}}">{{$.T "ui.wiki.to_current"}}</a>
+</div>
+<ul class="lejar lejar-rapat">
+{{range $.Data.History}}
+  <li class="baris">
+    <span class="baris-nama"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{$.Data.Page}}?v={{.Hash}}">{{.Subject}}</a></span>
+    <span class="baris-meta"><span class="mono">{{.Author}}</span> · {{$.Ago .When}}</span>
+    <span class="baris-nilai mono">{{short .Hash}}</span>
+  </li>
+{{end}}
+</ul>
+{{template "foot" $}}

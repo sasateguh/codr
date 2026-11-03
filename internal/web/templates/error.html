@@ -1,0 +1,9 @@
+{{template "head" $}}
+<div class="ralat-halaman">
+  <img src="{{$.Static}}/logo.svg" alt="" width="72" height="72">
+  <h1>{{$.T (printf "ui.error.%s_title" $.Data)}}</h1>
+  <p>{{$.T (printf "ui.error.%s" $.Data)}}</p>
+  {{if and (eq $.Data "404") (not $.User)}}<p class="meta">{{$.T "ui.login.required"}}</p>{{end}}
+  <p><a class="butang" href="/">{{$.T "ui.error.back"}}</a></p>
+</div>
+{{template "foot" $}}

@@ -1,0 +1,30 @@
+{{template "head" $}}
+<h1>{{$.T "ui.mail.title"}}</h1>
+<p class="meta prosa">{{$.T "ui.mail.intro"}}</p>
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+{{if $.Data.NoKey}}<p class="ralat">{{$.T "ui.hook.no_key"}}</p>{{end}}
+{{if $.Data.Config.LastError}}<p class="ralat">{{$.T "ui.mail.last_error" $.Data.Config.LastError}}</p>{{else if $.Data.Config.LastOKAt}}<p class="meta">{{$.T "ui.mail.last_ok" ($.Ago (parseTime $.Data.Config.LastOKAt))}}</p>{{end}}
+<form class="borang-sempit borang-kad kad" action="/admin/emel" method="post" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <div class="medan-dua">
+    <label class="medan"><span>{{$.T "ui.mail.host"}}</span><input type="text" name="host" value="{{$.Data.Config.Host}}" maxlength="253" autocomplete="off" placeholder="{{$.T "ui.mail.host_ph"}}"></label>
+    <label class="medan"><span>{{$.T "ui.mail.port"}}</span><input type="number" name="port" min="1" max="65535" value="{{$.Data.Config.Port}}"></label>
+  </div>
+  <label class="medan"><span>{{$.T "ui.mail.security"}}</span><select name="security">{{range $.Data.Security}}<option value="{{.}}"{{if eq . $.Data.Config.Security}} selected{{end}}>{{.}}</option>{{end}}</select></label>
+  <p class="nota-kecil">{{$.T "ui.mail.security_hint"}}</p>
+  <label class="medan"><span>{{$.T "ui.mail.username"}}</span><input type="text" name="username" value="{{$.Data.Config.Username}}" maxlength="254" autocomplete="off"></label>
+  <label class="medan"><span>{{$.T "ui.mail.password"}}</span><input type="password" name="password" value="" autocomplete="new-password" placeholder="{{if $.Data.HasPass}}{{$.T "ui.mail.password_kept"}}{{end}}"></label>
+  {{if $.Data.HasPass}}<fieldset class="medan pilihan"><legend>{{$.T "ui.mail.password_stored"}}</legend><label><input type="checkbox" name="clear_password" value="1"> {{$.T "ui.mail.password_clear"}}</label></fieldset>{{end}}
+  <label class="medan"><span>{{$.T "ui.mail.from"}}</span><input type="text" name="from" value="{{$.Data.Config.From}}" maxlength="254" autocomplete="off" placeholder="{{$.T "ui.mail.from_ph"}}"></label>
+  <fieldset class="medan pilihan">
+    <legend>{{$.T "ui.mail.switch"}}</legend>
+    <label><input type="checkbox" name="enabled" value="1"{{if $.Data.Config.Enabled}} checked{{end}}> {{$.T "ui.mail.enabled"}}</label>
+  </fieldset>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.hook.save"}}</button>
+</form>
+<form class="borang-sempit" action="/admin/emel/uji" method="post">
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <p class="meta">{{if $.Data.MyEmail}}{{$.T "ui.mail.test_to" $.Data.MyEmail}}{{else}}{{$.T "ui.mail.need_my_email"}}{{end}}</p>
+  <button class="butang" type="submit"{{if not $.Data.MyEmail}} disabled{{end}}>{{$.T "ui.mail.test"}}</button>
+</form>
+{{template "foot" $}}

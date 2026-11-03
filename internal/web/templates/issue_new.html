@@ -1,0 +1,15 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="borang-sempit borang-kad kad borang-isu">
+  <h1>{{$.T "ui.issue.new"}}</h1>
+  <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu" method="post" novalidate>
+    <input type="hidden" name="csrf" value="{{$.CSRF}}">
+    {{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+    <label class="medan"><span>{{$.T "ui.issue.field_title"}}</span><input type="text" name="title" value="{{$.Data.Title}}" maxlength="200" required autofocus></label>
+    <label class="medan"><span>{{$.T "ui.issue.field_body"}}</span><textarea name="body" rows="10">{{$.Data.Body}}</textarea></label>
+    <p class="nota-kecil">{{$.T "ui.issue.markdown_hint"}}</p>
+    <button class="butang butang-utama" type="submit">{{$.T "ui.issue.submit"}}</button>
+    <a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu">{{$.T "ui.issue.cancel"}}</a>
+  </form>
+</div>
+{{template "foot" $}}

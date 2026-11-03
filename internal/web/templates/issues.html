@@ -1,0 +1,49 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="kepala-senarai isu-kepala">
+  <nav class="isih" aria-label="{{$.T "ui.issue.state"}}">
+    <a href="{{$.Data.Link "open" $.Data.LabelID 1}}"{{if eq $.Data.State "open"}} aria-current="true"{{end}}>{{$.T "ui.issue.open_n" $.Data.Open}}</a>
+    <a href="{{$.Data.Link "closed" $.Data.LabelID 1}}"{{if eq $.Data.State "closed"}} aria-current="true"{{end}}>{{$.T "ui.issue.closed_n" $.Data.ClosedN}}</a>
+  </nav>
+  <form class="carian isu-cari" method="get" role="search">
+    <input type="hidden" name="keadaan" value="{{$.Data.State}}">
+    {{if $.Data.LabelID}}<input type="hidden" name="label" value="{{$.Data.LabelID}}">{{end}}
+    {{if $.Data.Assignee}}<input type="hidden" name="penerima" value="{{$.Data.Assignee}}">{{end}}
+    <label class="tersembunyi" for="cari-isu">{{$.T "ui.issue.search"}}</label>
+    <input id="cari-isu" type="search" name="q" value="{{$.Data.Query}}" placeholder="{{$.T "ui.issue.search"}}" autocomplete="off">
+  </form>
+  <a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/label">{{$.T "ui.label.title"}}{{if $.Data.Labels}} <span class="kiraan">{{len $.Data.Labels}}</span>{{end}}</a>
+  {{if $.Data.CanCreate}}<a class="butang butang-utama" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu/baharu">{{$.T "ui.issue.new"}}</a>{{end}}
+</div>
+{{template "tapis-penerima" (dict "P" $ "Mine" (and $.User ($.Data.Mine $.User.Name)) "On" $.Data.Assignee)}}
+{{if $.Data.Labels}}<p class="label-tapis"><span class="meta">{{$.T "ui.issue.filter_label"}}:</span>
+  {{range $.Data.Labels}}<a class="label {{.Colour}}{{if eq .ID $.Data.LabelID}} aktif{{end}}" href="{{if eq .ID $.Data.LabelID}}{{$.Data.Link $.Data.State 0 1}}{{else}}{{$.Data.Link $.Data.State .ID 1}}{{end}}">{{.Name}}</a>{{end}}</p>{{end}}
+{{if $.Data.Issues}}
+<ul class="lejar lejar-isu">
+{{range $.Data.Issues}}
+  <li><a class="baris" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu/{{.Number}}">
+    <span class="keadaan {{.State}}" aria-hidden="true"></span>
+    <span class="baris-nama">{{.Title}}{{range .Labels}} <span class="label {{.Colour}}">{{.Name}}</span>{{end}}</span>
+    <span class="baris-meta">#{{.Number}} · {{if .Closed}}{{$.T "ui.issue.closed_by" .Author ($.Ago (parseTime .ClosedAt))}}{{else}}{{$.T "ui.issue.opened_by" .Author ($.Ago (parseTime .CreatedAt))}}{{end}}{{with index $.Data.Assigned .Number}} · {{$.T "ui.assign.list" (joinList .)}}{{end}}</span>
+    <span class="baris-nilai">{{if .Comments}}{{$.N "ui.issue.comments_n" .Comments}}{{end}}</span>
+  </a></li>
+{{end}}
+</ul>
+{{if gt $.Data.Pages 1}}
+<nav class="mukasurat" aria-label="{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}">
+  {{if gt $.Data.Page 1}}<a href="{{$.Data.Link $.Data.State $.Data.LabelID (sub $.Data.Page 1)}}">← {{$.T "ui.repos.prev"}}</a>{{end}}
+  <span class="meta">{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}</span>
+  {{if lt $.Data.Page $.Data.Pages}}<a href="{{$.Data.Link $.Data.State $.Data.LabelID (add $.Data.Page 1)}}">{{$.T "ui.repos.next"}} →</a>{{end}}
+</nav>
+{{end}}
+{{else}}
+<div class="kosong kad">
+  <img src="{{$.Static}}/logo.svg" alt="" width="64" height="64">
+  <p>{{if or $.Data.Query $.Data.LabelID $.Data.Assignee}}{{$.T "ui.issue.none_match"}}{{else if eq $.Data.State "closed"}}{{$.T "ui.issue.none_closed"}}{{else}}{{$.T "ui.issue.none_open"}}{{end}}</p>
+  {{if or $.Data.Query $.Data.LabelID $.Data.Assignee}}<p><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu?keadaan={{$.Data.State}}">{{$.T "ui.list.clear_filters"}}</a></p>
+  {{else if and (eq $.Data.State "open") $.Data.ClosedN}}<p><a href="{{$.Data.Link "closed" 0 1}}">{{$.T "ui.list.see_closed" $.Data.ClosedN}}</a></p>{{end}}
+  {{if $.Data.CanCreate}}<p><a class="butang butang-utama" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu/baharu">{{$.T "ui.issue.new"}}</a></p>
+  {{else if $.Data.ReadyLogin}}<p class="meta"><a href="/login?next={{$.Path}}">{{$.T "ui.issue.login_to_open"}}</a></p>{{end}}
+</div>
+{{end}}
+{{template "foot" $}}

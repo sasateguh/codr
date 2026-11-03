@@ -1,0 +1,31 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="kepala-senarai">
+  <h1>{{$.T "ui.label.title"}} <span class="kiraan">{{len $.Data.Labels}}</span></h1>
+  <a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu">{{$.T "ui.label.back"}}</a>
+</div>
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+{{if $.Data.Labels}}
+<ul class="lejar lejar-rapat lejar-label">
+{{range $.Data.Labels}}
+  <li class="baris baris-label">
+    <span class="baris-nama"><a class="label {{.Colour}}" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu?label={{.ID}}">{{.Name}}</a></span>
+    <span class="baris-meta">{{$.T "ui.issue.open_n" .Open}}</span>
+    <span class="baris-nilai">{{if $.Data.CanManage}}<form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/label/padam" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="id" value="{{.ID}}"><button class="butang butang-kecil butang-bahaya" type="submit">{{$.T "ui.account.remove"}}</button></form>{{end}}</span>
+  </li>
+{{end}}
+</ul>
+{{else}}<p class="meta kosong-kecil">{{$.T "ui.label.none"}}</p>{{end}}
+{{if $.Data.CanManage}}
+<form class="borang-sempit borang-kad kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/label" method="post" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <h2 class="kepala-bahagian">{{$.T "ui.label.new"}}</h2>
+  <label class="medan"><span>{{$.T "ui.label.name"}}</span><input type="text" name="name" value="{{$.Data.Name}}" maxlength="40" required></label>
+  <fieldset class="medan pilihan warna">
+    <legend>{{$.T "ui.label.colour"}}</legend>
+    {{range $i, $c := $.Data.Colours}}<label><input type="radio" name="colour" value="{{$c}}"{{if eq $i 0}} checked{{end}}><span class="titik {{$c}}"></span><span class="tersembunyi">{{$c}}</span></label>{{end}}
+  </fieldset>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.label.add"}}</button>
+</form>
+{{end}}
+{{template "foot" $}}

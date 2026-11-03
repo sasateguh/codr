@@ -1,0 +1,74 @@
+{{template "head" $}}
+<h1>{{$.T "ui.cloud.title"}}</h1>
+<p class="meta prosa">{{$.T "ui.cloud.intro"}}</p>
+{{if $.Data.NoKey}}<p class="ralat" role="alert">{{$.T "ui.cloud.no_secret_key"}}</p>{{end}}
+{{if $.Data.NewKey}}
+<section class="kotak-token kunci-pemulihan" aria-live="polite">
+  <p class="berjaya">{{$.T "ui.cloud.key_created"}}</p>
+  <pre class="kod-arahan mono" tabindex="0">{{$.Data.NewKey}}</pre>
+  <p class="nota-kecil">{{$.T "ui.cloud.key_once"}}</p>
+</section>
+{{end}}
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+
+<div class="sandaran-keadaan kad">
+  <dl class="tentang-angka">
+    <div><dt>{{$.T "ui.cloud.state"}}</dt><dd>{{if $.Data.Running}}{{$.T "ui.cloud.state_running"}}{{else if and $.Data.Config.Enabled $.Data.Ready}}{{$.T "ui.cloud.state_on" $.Data.Config.IntervalHours}}{{else}}{{$.T "ui.cloud.state_off"}}{{end}}</dd></div>
+    <div><dt>{{$.T "ui.cloud.key"}}</dt><dd>{{if $.Data.Config.KeyHint}}{{$.Data.Config.KeyHint}}{{else}}{{$.T "ui.cloud.key_none"}}{{end}}</dd></div>
+    {{with $.Data.Runs}}{{with index . 0}}<div><dt>{{$.T "ui.cloud.last"}}</dt><dd class="keadaan-{{.Status}}">{{$.T (printf "ui.cloud.run_%s" .Status)}}</dd></div>{{end}}{{end}}
+  </dl>
+  <div class="sandaran-alat">
+    <form action="/admin/sandaran/jalan" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang butang-utama" type="submit"{{if or (not $.Data.Ready) $.Data.Running $.Data.NoKey}} disabled{{end}}>{{$.T "ui.cloud.run_now"}}</button></form>
+    <form action="/admin/sandaran/uji" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang" type="submit"{{if or (not $.Data.Ready) $.Data.NoKey}} disabled{{end}}>{{$.T "ui.cloud.test"}}</button></form>
+  </div>
+</div>
+
+<h2 class="kepala-bahagian" id="baldi">{{$.T "ui.cloud.bucket_title"}}</h2>
+<form action="/admin/sandaran" method="post" class="borang-sempit borang-sandaran" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.cloud.endpoint"}}</span><input type="url" name="endpoint" value="{{$.Data.Config.Endpoint}}" placeholder="https://" autocapitalize="none" spellcheck="false"></label>
+  <p class="nota-kecil">{{$.T "ui.cloud.endpoint_hint"}}</p>
+  <div class="medan-dua">
+    <label class="medan"><span>{{$.T "ui.cloud.bucket"}}</span><input type="text" name="bucket" value="{{$.Data.Config.Bucket}}" autocapitalize="none" spellcheck="false"></label>
+    <label class="medan"><span>{{$.T "ui.cloud.region"}}</span><input type="text" name="region" value="{{$.Data.Config.Region}}" autocapitalize="none" spellcheck="false"></label>
+  </div>
+  <label class="medan"><span>{{$.T "ui.cloud.prefix"}}</span><input type="text" name="prefix" value="{{$.Data.Config.Prefix}}" autocapitalize="none" spellcheck="false"></label>
+  <label class="medan"><span>{{$.T "ui.cloud.access_key"}}</span><input type="text" name="access_key" value="{{$.Data.Config.AccessKey}}" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+  <label class="medan"><span>{{$.T "ui.cloud.secret"}}</span><input type="password" name="secret" value="" autocomplete="new-password" placeholder="{{if $.Data.HasSecret}}{{$.T "ui.cloud.secret_kept"}}{{end}}"></label>
+  <div class="medan-dua">
+    <label class="medan"><span>{{$.T "ui.cloud.keep"}}</span><input type="number" name="keep" min="1" max="1000" value="{{$.Data.Config.Keep}}"></label>
+    <label class="medan"><span>{{$.T "ui.cloud.interval"}}</span><input type="number" name="interval_hours" min="1" max="720" value="{{$.Data.Config.IntervalHours}}"></label>
+  </div>
+  <fieldset class="medan pilihan">
+    <legend>{{$.T "ui.cloud.schedule"}}</legend>
+    <label><input type="checkbox" name="enabled" value="1"{{if $.Data.Config.Enabled}} checked{{end}}> {{$.T "ui.cloud.enabled"}}</label>
+  </fieldset>
+  <button class="butang butang-utama" type="submit"{{if $.Data.NoKey}} disabled{{end}}>{{$.T "ui.cloud.save"}}</button>
+</form>
+
+<h2 class="kepala-bahagian" id="kunci-pemulihan">{{$.T "ui.cloud.key_title"}}</h2>
+<p class="meta prosa">{{$.T "ui.cloud.key_explain"}}</p>
+<form action="/admin/sandaran/kunci" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang{{if $.Data.Config.KeyHint}} butang-bahaya{{end}}" type="submit"{{if $.Data.NoKey}} disabled{{end}}>{{if $.Data.Config.KeyHint}}{{$.T "ui.cloud.key_replace"}}{{else}}{{$.T "ui.cloud.key_make"}}{{end}}</button></form>
+
+<h2 class="kepala-bahagian" id="larian">{{$.T "ui.cloud.runs"}}</h2>
+{{if $.Data.Runs}}
+<table class="tetapan">
+  <thead><tr><th>{{$.T "ui.cloud.col_when"}}</th><th>{{$.T "ui.cloud.col_status"}}</th><th>{{$.T "ui.cloud.col_object"}}</th><th>{{$.T "ui.cloud.col_size"}}</th><th>{{$.T "ui.cloud.col_detail"}}</th></tr></thead>
+  <tbody>
+  {{range $.Data.Runs}}
+  <tr>
+    <td class="meta" data-l="{{$.T "ui.cloud.col_when"}}"><time datetime="{{.StartedAt}}" title="{{.StartedAt}}">{{$.Ago (parseTime .StartedAt)}}</time></td>
+    <td data-l="{{$.T "ui.cloud.col_status"}}"><span class="keadaan-{{.Status}}">{{$.T (printf "ui.cloud.run_%s" .Status)}}</span></td>
+    <td class="kunci" data-l="{{$.T "ui.cloud.col_object"}}">{{.Object}}</td>
+    <td class="meta" data-l="{{$.T "ui.cloud.col_size"}}">{{if .Bytes}}{{size .Bytes}} · {{$.N "ui.cloud.repos" .Repos}}{{end}}</td>
+    <td class="meta" data-l="{{$.T "ui.cloud.col_detail"}}">{{.Detail}}</td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}<p class="meta">{{$.T "ui.cloud.no_runs"}}</p>{{end}}
+
+<h2 class="kepala-bahagian" id="pulih">{{$.T "ui.cloud.restore_title"}}</h2>
+<p class="meta prosa">{{$.T "ui.cloud.restore_explain"}}</p>
+<pre class="kod-arahan mono" tabindex="0">{{$.T "ui.cloud.restore_cmd" $.Data.Config.Endpoint $.Data.Config.Region $.Data.Config.Bucket $.Data.Config.Prefix $.Data.Config.AccessKey}}</pre>
+{{template "foot" $}}

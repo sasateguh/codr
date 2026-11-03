@@ -1,0 +1,72 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="isu-tajuk">
+  <h1>{{$.Data.Issue.Title}} <span class="lembut nombor">#{{$.Data.Issue.Number}}</span></h1>
+  <p class="meta-baris isu-meta">
+    <span class="pil-keadaan {{$.Data.Issue.State}}">{{if $.Data.Issue.Closed}}{{$.T "ui.issue.closed"}}{{else}}{{$.T "ui.issue.open"}}{{end}}</span>
+    <span>{{$.T "ui.issue.opened_by" $.Data.Issue.Author ($.Ago (parseTime $.Data.Issue.CreatedAt))}}</span>
+    {{if $.Data.Issue.Closed}}<span>{{$.T "ui.issue.closed_at" ($.Ago (parseTime $.Data.Issue.ClosedAt))}}{{with $.Data.ClosedBy}}{{if .Href}} {{$.T "ui.issue.closed_via"}} <a class="mono" href="{{.Href}}">{{.Text}}</a>{{else if .Hidden}} {{$.T "ui.issue.closed_via_hidden"}}{{end}}{{end}}</span>{{end}}
+    {{if $.Data.Comments}}<span>{{$.N "ui.issue.comments_n" (len $.Data.Comments)}}</span>{{end}}
+  </p>
+</div>
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+<div class="isu-grid">
+  <div class="isu-utama">
+    <article class="komen kad">
+      <header class="komen-kepala">{{template "penulis" (dict "A" $.Data.Issue.Author "U" $.Data.Issue.ExtURL "P" $)}} <time class="meta" datetime="{{$.Data.Issue.CreatedAt}}" title="{{$.Data.Issue.CreatedAt}}">{{$.Ago (parseTime $.Data.Issue.CreatedAt)}}</time></header>
+      <div class="prosa komen-badan">{{if $.Data.Issue.Body}}{{$.Data.BodyHTML}}{{else}}<p class="meta">{{$.T "ui.issue.no_body"}}</p>{{end}}</div>
+    </article>
+    {{range $.Data.Comments}}
+    <article class="komen kad" id="komen-{{.ID}}">
+      <header class="komen-kepala">{{template "penulis" (dict "A" .Author "U" .ExtURL "P" $)}} <a class="meta" href="#komen-{{.ID}}"><time datetime="{{.CreatedAt}}" title="{{.CreatedAt}}">{{$.Ago (parseTime .CreatedAt)}}</time></a></header>
+      <div class="prosa komen-badan">{{.HTML}}</div>
+    </article>
+    {{end}}
+    {{if $.Data.CanComment}}
+    <form class="komen-borang kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu/{{$.Data.Issue.Number}}/komen" method="post" novalidate>
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      <label class="medan"><span>{{$.T "ui.issue.comment"}}</span><textarea name="body" rows="5" required>{{$.Data.Draft}}</textarea></label>
+      <p class="nota-kecil">{{$.T "ui.issue.markdown_hint"}}</p>
+      <button class="butang butang-utama" type="submit">{{$.T "ui.issue.comment_submit"}}</button>
+    </form>
+    {{else if not $.User}}<p class="meta kosong-kecil"><a href="/login?next={{$.Path}}">{{$.T "ui.issue.login_to_comment"}}</a></p>
+    {{else if $.Data.Repo.Archived}}<p class="meta kosong-kecil">{{$.T "ui.issue.archived"}}</p>{{end}}
+  </div>
+  <aside class="isu-sisi">
+    {{if $.Data.CanClose}}
+    <form class="kad sisi-kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu/{{$.Data.Issue.Number}}/keadaan" method="post">
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      <p class="kepala-bahagian">{{$.T "ui.issue.state"}}</p>
+      {{if $.Data.Issue.Closed}}<button class="butang" type="submit" name="keadaan" value="open">{{$.T "ui.issue.reopen"}}</button>
+      {{else}}<button class="butang butang-bahaya" type="submit" name="keadaan" value="closed">{{$.T "ui.issue.close"}}</button>{{end}}
+    </form>
+    {{end}}
+    {{template "penerima" (dict "P" $ "A" (printf "/%s/%s/isu/%d/penerima" $.Data.Repo.Owner $.Data.Repo.Name $.Data.Issue.Number) "L" $.Data.Assignees "C" $.Data.CanManage)}}
+    <div class="kad sisi-kad">
+      <p class="kepala-bahagian">{{$.T "ui.label.title"}}</p>
+      {{if $.Data.CanManage}}
+      <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu/{{$.Data.Issue.Number}}/label" method="post">
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        {{if $.Data.Labels}}<fieldset class="pilihan senarai-label"><legend class="tersembunyi">{{$.T "ui.label.title"}}</legend>
+        {{range $l := $.Data.Labels}}<label><input type="checkbox" name="label" value="{{$l.ID}}"{{range $.Data.Issue.Labels}}{{if eq .ID $l.ID}} checked{{end}}{{end}}> <span class="label {{$l.Colour}}">{{$l.Name}}</span></label>{{end}}
+        </fieldset>
+        <button class="butang butang-kecil" type="submit">{{$.T "ui.label.apply"}}</button>
+        {{else}}<p class="meta">{{$.T "ui.label.none"}}</p>{{end}}
+        <p class="nota-kecil"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/label">{{$.T "ui.label.manage"}}</a></p>
+      </form>
+      {{else}}{{if $.Data.Issue.Labels}}<p>{{range $.Data.Issue.Labels}}<span class="label {{.Colour}}">{{.Name}}</span> {{end}}</p>{{else}}<p class="meta">{{$.T "ui.label.none_on_issue"}}</p>{{end}}{{end}}
+    </div>
+    {{if $.Data.CanClose}}
+    <details class="kad sisi-kad lipat-sunting">
+      <summary class="kepala-bahagian">{{$.T "ui.issue.edit"}}</summary>
+      <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/isu/{{$.Data.Issue.Number}}/sunting" method="post" novalidate>
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <label class="medan"><span>{{$.T "ui.issue.field_title"}}</span><input type="text" name="title" value="{{$.Data.Issue.Title}}" maxlength="200" required></label>
+        <label class="medan"><span>{{$.T "ui.issue.field_body"}}</span><textarea name="body" rows="8">{{$.Data.Issue.Body}}</textarea></label>
+        <button class="butang butang-kecil" type="submit">{{$.T "ui.issue.save"}}</button>
+      </form>
+    </details>
+    {{end}}
+  </aside>
+</div>
+{{template "foot" $}}

@@ -1,0 +1,16 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="alat-ref">{{template "pemilih-ref" $}}
+  <span class="meta">{{if $.Data.Path}}{{$.T "ui.log.of_path" $.Data.Ref $.Data.Path}}{{else}}{{$.T "ui.log.title" $.Data.Ref}}{{end}}</span></div>
+{{if not $.Data.Groups}}<p class="kosong meta">{{$.T "ui.log.empty"}}</p>{{end}}
+{{range $.Data.Groups}}
+<p class="kepala-bahagian tarikh-kumpulan">{{day .Day}}</p>
+<ul class="lejar lejar-rapat lejar-commit">
+{{range .Commits}}{{template "baris-commit" (dict "Owner" $.Data.Repo.Owner "Name" $.Data.Repo.Name "C" . "P" $)}}{{end}}
+</ul>
+{{end}}
+<nav class="mukasurat">
+  {{if gt $.Data.Page 1}}<a href="?muka={{sub $.Data.Page 1}}">← {{$.T "ui.log.newer"}}</a>{{end}}
+  {{if $.Data.HasMore}}<a href="?muka={{add $.Data.Page 1}}">{{$.T "ui.log.older"}} →</a>{{end}}
+</nav>
+{{template "foot" $}}

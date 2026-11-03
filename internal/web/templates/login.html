@@ -1,0 +1,29 @@
+{{template "head" $}}
+<div class="login">
+  <section class="hero" aria-label="{{$.SiteName}}">
+    <img class="hero-logo" src="{{$.Static}}/logo.svg" alt="" width="72" height="72">
+    <h2>{{$.T "ui.brand.tagline"}}</h2>
+    <p class="lain" lang="{{if eq $.Lang "ms-MY"}}en{{else}}ms{{end}}">{{$.TIn $.OtherLang "ui.brand.tagline"}}</p>
+    <p class="lead">{{$.T "ui.brand.lead"}}</p>
+    <dl class="spek">
+      <div><dt>{{$.T "ui.brand.k1"}}</dt><dd>{{$.T "ui.brand.v1"}}</dd></div>
+      <div><dt>{{$.T "ui.brand.k2"}}</dt><dd>{{$.T "ui.brand.v2"}}</dd></div>
+      <div><dt>{{$.T "ui.brand.k3"}}</dt><dd>{{$.T "ui.brand.v3"}}</dd></div>
+    </dl>
+  </section>
+  <div class="kad login-kad">
+    <h1>{{$.T "ui.login.title"}}</h1>
+    <form action="/login" method="post" class="borang" novalidate>
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      <input type="hidden" name="next" value="{{$.Data.Next}}">
+      {{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+      <label class="medan"><span>{{$.T "ui.login.user"}}</span><input type="text" name="user" value="{{$.Data.User}}" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+      <label class="medan"><span>{{$.T "ui.login.password"}}</span><input type="password" name="password" autocomplete="current-password" required></label>
+      <button class="butang butang-utama" type="submit">{{$.T "ui.login.submit"}}</button>
+    </form>
+    {{if $.Data.OIDC}}<p class="atau"><span>{{$.T "ui.oidc.or"}}</span></p>
+    <a class="butang butang-penuh" href="/login/oidc?next={{$.Data.Next}}">{{$.T "ui.oidc.button" $.Data.OIDC}}</a>{{end}}
+    <p class="nota-kecil">{{$.T "ui.login.note"}}</p>
+  </div>
+</div>
+{{template "foot" $}}

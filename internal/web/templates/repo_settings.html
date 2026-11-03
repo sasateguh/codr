@@ -1,0 +1,42 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<h1>{{$.T "ui.rset.title"}}</h1>
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+<form class="borang-sempit borang-kad kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tetapan" method="post" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.rset.desc"}}</span><input type="text" name="description" value="{{$.Data.Description}}" maxlength="255"></label>
+  <fieldset class="medan pilihan">
+    <legend>{{$.T "ui.rset.styles"}}</legend>
+    <p class="nota-kecil">{{$.T "ui.rset.styles_hint"}}</p>
+    {{range $.Data.Styles}}<label><input type="checkbox" name="cara" value="{{.}}"{{if index $.Data.On .}} checked{{end}}> <span><strong>{{$.T (printf "ui.pull.style.%s" .)}}</strong> <span class="meta nota-pilihan">{{$.T (printf "ui.pull.style_note.%s" .)}}</span></span></label>{{end}}
+  </fieldset>
+  <label class="medan"><span>{{$.T "ui.rset.first"}}</span>
+    <select name="utama">{{range $.Data.Styles}}<option value="{{.}}"{{if eq . $.Data.First}} selected{{end}}>{{$.T (printf "ui.pull.style.%s" .)}}</option>{{end}}</select></label>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.rset.save"}}</button>
+</form>
+<h2 class="kepala-bahagian" id="lindung">{{$.T "ui.rset.rules"}}</h2>
+<p class="meta prosa">{{$.T "ui.rset.rules_hint"}}{{if $.Data.DefaultOn}} {{$.T "ui.rset.default_on" $.Data.Repo.DefaultBranch}}{{end}}</p>
+{{if $.Data.Rules}}
+<ul class="lejar lejar-rapat">
+{{range $.Data.Rules}}
+  <li class="baris">
+    <span class="baris-nama mono">{{.Pattern}}</span>
+    <span class="baris-meta">{{if .RequireChecks}}<span class="lencana lencana-awam">{{$.T "ui.rset.rule_checks"}}</span> {{end}}{{if .AllowForce}}<span class="lencana">{{$.T "ui.rset.rule_force"}}</span> {{end}}{{if .AllowDelete}}<span class="lencana">{{$.T "ui.rset.rule_delete"}}</span>{{end}}</span>
+    <form class="baris-nilai" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tetapan/lindung/buang" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="corak" value="{{.Pattern}}">
+      <button class="butang butang-kecil" type="submit" aria-label="{{$.T "ui.rset.rule_remove_label" .Pattern}}">{{$.T "ui.rset.rule_remove"}}</button></form>
+  </li>
+{{end}}
+</ul>
+{{else}}<p class="meta kosong-kecil">{{$.T "ui.rset.rules_none"}}</p>{{end}}
+<form class="borang-sempit borang-kad kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tetapan/lindung/simpan" method="post" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.rset.pattern"}}</span><input type="text" name="corak" value="{{$.Data.Pattern}}" placeholder="main" maxlength="100" required autocapitalize="none" spellcheck="false"></label>
+  <p class="nota-kecil">{{$.T "ui.rset.pattern_hint"}}</p>
+  <fieldset class="medan pilihan"><legend>{{$.T "ui.rset.rule_options"}}</legend>
+    <label><input type="checkbox" name="semakan" value="1"> <span><strong>{{$.T "ui.rset.rule_checks"}}</strong> <span class="meta nota-pilihan">{{$.T "ui.rset.rule_checks_note"}}</span></span></label>
+    <label><input type="checkbox" name="paksa" value="1"> <span><strong>{{$.T "ui.rset.rule_force"}}</strong> <span class="meta nota-pilihan">{{$.T "ui.rset.rule_force_note"}}</span></span></label>
+    <label><input type="checkbox" name="padam" value="1"> <span><strong>{{$.T "ui.rset.rule_delete"}}</strong> <span class="meta nota-pilihan">{{$.T "ui.rset.rule_delete_note"}}</span></span></label>
+  </fieldset>
+  <button class="butang" type="submit">{{$.T "ui.rset.rule_save"}}</button>
+</form>
+{{template "foot" $}}

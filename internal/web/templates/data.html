@@ -1,0 +1,44 @@
+{{template "head" $}}
+<h1>{{$.T "ui.data.title"}}</h1>
+<p class="meta prosa">{{$.T "ui.data.intro"}}</p>
+<div class="data-alat"><a class="butang" href="/admin/data/laporan.json">{{$.T "ui.data.json"}}</a><a class="butang" href="/admin/data/audit.csv">{{$.T "ui.data.csv"}}</a></div>
+{{with $.Data.Summary}}
+<h2 class="kepala-bahagian">{{$.T "ui.data.statement"}}</h2>
+<dl class="data-kenyataan kad">
+  <div><dt>{{$.T "ui.data.controller"}}</dt><dd>{{if .Controller}}{{.Controller}}{{else}}<span class="lembut">{{$.T "ui.data.not_stated"}}</span>{{end}}</dd></div>
+  <div><dt>{{$.T "ui.data.location"}}</dt><dd>{{if .Location}}{{.Location}}{{else}}<span class="lembut">{{$.T "ui.data.not_stated"}}</span>{{end}}</dd></div>
+  <div><dt>{{$.T "ui.data.contact"}}</dt><dd>{{if .Contact}}{{.Contact}}{{else}}<span class="lembut">{{$.T "ui.data.not_stated"}}</span>{{end}}</dd></div>
+</dl>
+<p class="nota-kecil">{{$.T "ui.data.statement_hint"}}</p>
+
+<h2 class="kepala-bahagian">{{$.T "ui.data.where"}}</h2>
+<dl class="tentang-angka data-angka kad">
+  <div><dt>{{$.T "ui.data.folder"}}</dt><dd>{{.DataDir}}</dd></div>
+  <div><dt>{{$.T "ui.data.db"}}</dt><dd>{{size .DBBytes}}</dd></div>
+  <div><dt>{{$.T "ui.data.free"}}</dt><dd>{{size .DiskFree}}</dd></div>
+  <div><dt>{{$.T "ui.data.repos"}}</dt><dd>{{$.T "ui.data.repos_v" .Repos .Private .Mirrors}}</dd></div>
+  <div><dt>{{$.T "ui.data.users"}}</dt><dd>{{$.T "ui.data.users_v" .Users (len .Admins)}}</dd></div>
+  <div><dt>{{$.T "ui.data.cloud"}}</dt><dd>{{if .CloudHost}}{{.CloudHost}} / {{.CloudBucket}}{{if .CloudLastOK}} · {{$.Ago (parseTime .CloudLastOK)}}{{end}}{{else}}<span class="lembut">{{$.T "ui.data.none"}}</span>{{end}}</dd></div>
+  <div><dt>{{$.T "ui.data.ai"}}</dt><dd>{{if .AIHost}}{{$.T "ui.data.ai_v" .AIHost .AIRepos}}{{else}}<span class="lembut">{{$.T "ui.data.ai_off"}}</span>{{end}}</dd></div>
+  <div><dt>{{$.T "ui.data.sources"}}</dt><dd>{{range $i, $h := .MirrorHosts}}{{if $i}}, {{end}}{{$h}}{{else}}<span class="lembut">{{$.T "ui.data.none"}}</span>{{end}}</dd></div>
+</dl>
+<p class="nota-kecil">{{$.T "ui.data.admins" (len .Admins)}} {{range $i, $a := .Admins}}{{if $i}}, {{end}}<span class="mono">{{$a}}</span>{{end}}</p>
+{{end}}
+
+<h2 class="kepala-bahagian">{{$.T "ui.data.matrix"}}</h2>
+<p class="meta prosa">{{$.T "ui.data.matrix_hint"}}</p>
+<table class="tetapan">
+  <thead><tr><th>{{$.T "ui.data.col_repo"}}</th><th>{{$.T "ui.data.col_vis"}}</th><th>{{$.T "ui.data.col_owner"}}</th><th>{{$.T "ui.data.col_collab"}}</th></tr></thead>
+  <tbody>
+  {{range $.Data.Matrix}}
+  <tr>
+    <td class="kunci" data-l="{{$.T "ui.data.col_repo"}}"><a href="/{{.Repo}}">{{.Repo}}</a></td>
+    <td data-l="{{$.T "ui.data.col_vis"}}">{{if .Private}}{{$.T "ui.badge.private"}}{{else}}{{$.T "ui.badge.public"}}{{end}}{{if .Mirror}} · {{$.T "ui.badge.mirror"}}{{end}}{{if .Archived}} · {{$.T "ui.badge.archived"}}{{end}}</td>
+    <td class="mono" data-l="{{$.T "ui.data.col_owner"}}">{{.Owner}}</td>
+    <td data-l="{{$.T "ui.data.col_collab"}}">{{range $i, $c := .Collaborators}}{{if $i}}, {{end}}<span class="mono">{{$c.User}}</span> ({{$c.Role}}){{else}}{{if not .OrgBase}}<span class="lembut">{{$.T "ui.data.none"}}</span>{{end}}{{end}}
+      {{if .OrgBase}}<span class="data-org">{{$.T "ui.data.org_line" (len .OrgOwners) .OrgMembers .OrgBase}}{{range .Teams}} · {{$.T "ui.data.team_line" .User .Role}}{{end}}</span>{{end}}</td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{template "foot" $}}

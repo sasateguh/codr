@@ -1,0 +1,32 @@
+{{template "head" $}}
+<h1>{{$.T "ui.activity.title"}}</h1>
+<p class="meta prosa">{{$.T "ui.activity.intro"}}</p>
+<nav class="label-tapis" aria-label="{{$.T "ui.activity.filter"}}"><span class="meta">{{$.T "ui.activity.filter"}}:</span>
+  <a class="label h0{{if not $.Data.Area}} aktif{{end}}" href="{{$.Data.Link "" 1}}"{{if not $.Data.Area}} aria-current="true"{{end}}>{{$.T "ui.activity.all"}}</a>
+  {{range $.Data.Areas}}<a class="label h0{{if eq . $.Data.Area}} aktif{{end}}" href="{{$.Data.Link . 1}}"{{if eq . $.Data.Area}} aria-current="true"{{end}}>{{$.T (printf "ui.activity.area.%s" .)}}</a> {{end}}
+</nav>
+{{if $.Data.Rows}}
+<table class="tetapan audit">
+  <thead><tr><th>{{$.T "ui.audit.when"}}</th><th>{{$.T "ui.activity.area"}}</th><th>{{$.T "ui.audit.action"}}</th><th>{{$.T "ui.audit.target"}}</th><th>{{$.T "ui.audit.detail"}}</th></tr></thead>
+  <tbody>
+  {{range $.Data.Rows}}
+  <tr>
+    <td class="meta" data-l="{{$.T "ui.audit.when"}}"><time datetime="{{.At}}" title="{{.At}}">{{$.Ago (parseTime .At)}}</time></td>
+    <td data-l="{{$.T "ui.activity.area"}}">{{$.T (printf "ui.activity.area.%s" .Area)}}</td>
+    <td class="mono" data-l="{{$.T "ui.audit.action"}}">{{.Action}}</td>
+    <td class="mono" data-l="{{$.T "ui.audit.target"}}">{{.Target}}</td>
+    <td class="meta" data-l="{{$.T "ui.audit.detail"}}">{{.Detail}}</td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{if gt $.Data.Pages 1}}
+<nav class="mukasurat" aria-label="{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}">
+  {{if gt $.Data.Page 1}}<a href="{{$.Data.Link $.Data.Area (sub $.Data.Page 1)}}">← {{$.T "ui.log.newer"}}</a>{{end}}
+  <span class="meta">{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}</span>
+  {{if lt $.Data.Page $.Data.Pages}}<a href="{{$.Data.Link $.Data.Area (add $.Data.Page 1)}}">{{$.T "ui.log.older"}} →</a>{{end}}
+</nav>
+{{end}}
+{{else}}<p class="kosong meta">{{if $.Data.Area}}{{$.T "ui.activity.none_area"}}{{else}}{{$.T "ui.activity.none"}}{{end}}</p>{{end}}
+<p class="nota-kecil"><a href="/akaun/data.json">{{$.T "ui.data.mine"}}</a></p>
+{{template "foot" $}}

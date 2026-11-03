@@ -1,0 +1,112 @@
+{{template "head" $}}
+{{with $.Data.Org}}
+<section class="org-kepala">
+  <span class="jubin jubin-profil {{hue .Name}}" aria-hidden="true">{{initial .Name}}</span>
+  <div>
+    <h1 class="mono">{{.Name}} <span class="lencana">{{$.T "ui.org.badge"}}</span></h1>
+    <p class="meta">{{$.N "ui.org.members_n" .Members}} · {{$.N "ui.org.teams_n" .Teams}}</p>
+  </div>
+  {{if .CanManage}}<div class="org-alat"><a class="butang" href="/org/{{.Name}}">{{$.T "ui.org.manage"}}</a><a class="butang butang-utama" href="/baharu?pemilik={{.Name}}">{{$.T "ui.nav.new"}}</a></div>{{end}}
+</section>
+{{end}}
+{{with $.Data.Profile}}
+<section class="profil" aria-labelledby="profil-nama">
+  <div class="profil-kepala">
+    <span class="jubin jubin-profil {{hue .Name}}" aria-hidden="true">{{initial .Name}}</span>
+    <div>
+      <h1 id="profil-nama" class="mono">{{.Name}}</h1>
+      <p class="meta">{{if not .Joined.IsZero}}{{$.T "ui.profile.joined" (day .Joined)}} · {{end}}{{$.N "ui.profile.year" .Total}}</p>
+    </div>
+  </div>
+  <div class="kalendar-bingkai" tabindex="0" role="region" aria-label="{{$.N "ui.profile.year" .Total}}">
+    <svg class="kalendar" viewBox="0 0 {{.W}} {{.H}}" width="{{.W}}" height="{{.H}}" aria-hidden="true">
+      {{range .Months}}<text class="kalendar-bulan" x="{{.X}}" y="10">{{.Label}}</text>{{end}}
+      {{range .Days}}<rect class="aras-{{.Level}}" x="{{.X}}" y="{{.Y}}" width="11" height="11" rx="2"><title>{{$.N "ui.profile.day" .N .Date}}</title></rect>{{end}}
+    </svg>
+  </div>
+  <p class="kalendar-legenda meta"><span>{{$.T "ui.profile.less"}}</span><svg viewBox="0 0 67 11" width="67" height="11" aria-hidden="true"><rect class="aras-0" x="0" width="11" height="11" rx="2"/><rect class="aras-1" x="14" width="11" height="11" rx="2"/><rect class="aras-2" x="28" width="11" height="11" rx="2"/><rect class="aras-3" x="42" width="11" height="11" rx="2"/><rect class="aras-4" x="56" width="11" height="11" rx="2"/></svg><span>{{$.T "ui.profile.more"}}</span></p>
+  {{if .Recent}}
+  <h2 class="kepala-bahagian">{{$.T "ui.profile.recent"}}</h2>
+  <ul class="lejar lejar-rapat aktiviti">
+  {{range .Recent}}<li><a class="baris" href="{{.Link}}"><span class="baris-nama">{{$.T .Key .Repo}}{{if .Title}}<span class="baris-subjek"><span class="mono">#{{.Num}}</span> {{.Title}}</span>{{end}}{{if .Branch}} <span class="lencana mono">{{.Branch}}</span>{{end}}</span><span class="baris-nilai"><time datetime="{{.At.Format "2006-01-02T15:04:05Z07:00"}}" title="{{rfc .At}}">{{$.Ago .At}}</time></span></a></li>
+  {{end}}</ul>
+  {{end}}
+</section>
+{{end}}
+{{if not $.Data.Dash}}{{template "mula" $}}<div class="kepala-senarai">
+  {{if or $.Data.Profile $.Data.Org}}<h2 class="tajuk-senarai">{{$.T "ui.repos.of" $.Data.Owner}} <span class="kiraan">{{$.N "ui.repos.count" $.Data.Total}}</span></h2>{{else}}<h1>{{if $.Data.Owner}}{{$.T "ui.repos.of" $.Data.Owner}}{{else}}{{$.T "ui.repos.title"}}{{end}} <span class="kiraan">{{$.N "ui.repos.count" $.Data.Total}}</span></h1>{{end}}
+  <nav class="isih" aria-label="{{$.T "ui.repos.sort"}}">
+    <a href="?q={{$.Data.Query}}&isih=recent"{{if eq $.Data.Sort "recent"}} aria-current="true"{{end}}>{{$.T "ui.repos.sort_recent"}}</a>
+    <a href="?q={{$.Data.Query}}&isih=name"{{if eq $.Data.Sort "name"}} aria-current="true"{{end}}>{{$.T "ui.repos.sort_name"}}</a></nav>
+  {{if and $.User (not $.Data.Org)}}<a class="butang butang-utama" href="/baharu">{{$.T "ui.nav.new"}}</a>{{end}}
+</div>
+{{if $.Data.Repos}}
+<ul class="lejar lejar-repo">
+{{range $.Data.Repos}}
+  <li{{if .Archived}} class="baris-arkib"{{end}}><a class="baris" href="/{{.Owner}}/{{.Name}}">
+    <span class="jubin {{hue .Name}}" aria-hidden="true">{{initial .Name}}</span>
+    <span class="baris-nama">{{if not $.Data.Owner}}<span class="lembut">{{.Owner}} /</span> {{end}}{{.Name}}
+      {{if .Private}}<span class="lencana lencana-kunci">{{$.T "ui.badge.private"}}</span>{{else}}<span class="lencana lencana-awam">{{$.T "ui.badge.public"}}</span>{{end}}{{if .Mirror}} <span class="lencana lencana-cermin">{{$.T "ui.badge.mirror"}}</span>{{end}}{{if .Archived}} <span class="lencana">{{$.T "ui.badge.archived"}}</span>{{end}}</span>
+    <span class="baris-meta">{{if .Branch}}{{.Branch}} · {{.Head}}{{else}}{{$.T "ui.repo.empty_short"}}{{end}}{{if .Description}} · <span class="lembut">{{.Description}}</span>{{end}}</span>
+    <span class="baris-nilai"><time datetime="{{.UpdatedAt}}" title="{{.UpdatedAt}}">{{$.Ago (parseTime .UpdatedAt)}}</time></span>
+  </a></li>
+{{end}}
+</ul>
+{{if gt $.Data.Pages 1}}
+<nav class="mukasurat" aria-label="{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}">
+  {{if gt $.Data.Page 1}}<a href="?q={{$.Data.Query}}&isih={{$.Data.Sort}}&muka={{sub $.Data.Page 1}}">← {{$.T "ui.repos.prev"}}</a>{{end}}
+  <span class="meta">{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}</span>
+  {{if lt $.Data.Page $.Data.Pages}}<a href="?q={{$.Data.Query}}&isih={{$.Data.Sort}}&muka={{add $.Data.Page 1}}">{{$.T "ui.repos.next"}} →</a>{{end}}
+</nav>
+{{end}}
+{{else}}
+<div class="kosong kad">
+  <img src="{{$.Static}}/logo.svg" alt="" width="64" height="64">
+  {{if $.Data.Query}}<p>{{$.T "ui.repos.none_found" $.Data.Query}}</p>
+  {{else}}<p>{{$.T "ui.repos.empty"}}</p>
+  {{if $.User}}<p class="meta">{{$.T "ui.repos.empty_hint"}}</p>
+  <p><a class="butang butang-utama" href="/baharu{{if $.Data.Org}}?pemilik={{$.Data.Org.Name}}{{end}}">{{$.T "ui.nav.new"}}</a></p>
+  <pre class="kod-arahan mono" tabindex="0">{{$.T "ui.cmd.push_new" $.Data.SSHHost $.User.Name}}</pre>{{end}}{{end}}
+</div>
+{{end}}
+{{end}}
+{{if $.Data.Dash}}
+<div class="papan">
+  <div class="papan-utama">
+    {{template "mula" $}}
+    <h1 class="papan-tajuk">{{$.T "ui.feed.title"}}</h1>
+    {{if $.Data.Feed}}
+    <ol class="suapan">
+    {{range $.Data.Feed}}{{if .Day}}<li class="suapan-hari" aria-hidden="true">{{.Day}}</li>{{end}}
+      <li class="suapan-baris">
+        <span class="jubin {{hue .Actor}}" aria-hidden="true">{{initial .Actor}}</span>
+        <div class="suapan-isi"><p><a class="mono suapan-siapa" href="/{{.Actor}}">{{.Actor}}</a> <a href="{{.Link}}">{{$.T .Feed .Repo}}</a>{{if .Branch}} <span class="lencana mono">{{.Branch}}</span>{{end}}</p>{{if .Title}}
+        <a class="suapan-subjek" href="{{.Link}}"><span class="mono">#{{.Num}}</span> {{.Title}}</a>{{end}}</div>
+        <time class="meta" datetime="{{.At.Format "2006-01-02T15:04:05Z07:00"}}" title="{{rfc .At}}">{{$.Ago .At}}</time>
+      </li>
+    {{end}}
+    </ol>
+    {{else}}<p class="meta kosong-kecil">{{$.T "ui.feed.empty"}}</p>{{end}}
+  </div>
+  <aside class="papan-sisi" aria-labelledby="sisi-tajuk">
+    <div class="papan-sisi-kepala"><h2 id="sisi-tajuk" class="kepala-bahagian">{{$.T "ui.feed.repos"}}</h2><a class="butang butang-kecil" href="/baharu">{{$.T "ui.nav.new"}}</a></div>
+    <ul class="sisi-repo">
+    {{range $.Data.Side}}<li><a href="/{{.Owner}}/{{.Name}}"><span class="jubin {{hue .Name}}" aria-hidden="true">{{initial .Name}}</span><span class="sisi-nama"><span class="lembut">{{.Owner}} /</span> {{.Name}}</span>{{if .Private}}<span class="lencana lencana-kunci">{{$.T "ui.badge.private"}}</span>{{end}}</a></li>{{end}}
+    </ul>
+    <a class="sisi-semua" href="/?semua=1">{{$.T "ui.feed.all_repos" $.Data.Total}}</a>
+  </aside>
+</div>
+{{end}}
+{{template "foot" $}}
+
+{{define "mula"}}{{with $.Data.Start}}
+<section class="mula kad" aria-labelledby="mula-tajuk">
+  <h2 id="mula-tajuk">{{$.T "ui.start.title"}}</h2>
+  <p class="meta">{{$.T "ui.start.lead"}}</p>
+  <ol class="mula-langkah">
+    <li class="{{if .Key}}siap{{end}}"><span class="mula-tanda" aria-hidden="true"></span><div><strong>{{$.T "ui.start.key"}}</strong>{{if .Key}} <span class="tersembunyi">{{$.T "ui.start.done"}}</span>{{else}}<p class="meta">{{$.T "ui.start.key_hint"}} <a href="/akaun">{{$.T "ui.nav.account"}}</a></p>{{end}}</div></li>
+    <li class="{{if .Repo}}siap{{end}}"><span class="mula-tanda" aria-hidden="true"></span><div><strong>{{$.T "ui.start.repo"}}</strong>{{if .Repo}} <span class="tersembunyi">{{$.T "ui.start.done"}}</span>{{else}}<p class="meta">{{$.T "ui.start.repo_hint"}} <a href="/baharu">{{$.T "ui.nav.new"}}</a></p>{{end}}</div></li>
+    <li class="{{if .Push}}siap{{end}}"><span class="mula-tanda" aria-hidden="true"></span><div><strong>{{$.T "ui.start.push"}}</strong>{{if .Push}} <span class="tersembunyi">{{$.T "ui.start.done"}}</span>{{else}}<p class="meta">{{$.T "ui.start.push_hint"}}</p><pre class="kod-arahan mono" tabindex="0">{{$.T "ui.cmd.push_new" $.Data.SSHHost $.User.Name}}</pre>{{end}}</div></li>
+  </ol>
+</section>
+{{end}}{{end}}

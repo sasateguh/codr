@@ -1,0 +1,4 @@
+# D98: only the binary and the Dockerfile go to the builder (Depot or local)
+*
+!Dockerfile
+!codr-runner

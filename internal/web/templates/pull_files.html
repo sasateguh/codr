@@ -1,0 +1,60 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+{{template "pr-kepala" $}}
+{{if not $.Data.Pull.Open}}
+<p class="meta kosong-kecil">{{$.T "ui.pull.files_closed"}}{{if $.Data.Pull.MergeCommit}} <a class="mono" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commit/{{$.Data.Pull.MergeCommit}}">{{short $.Data.Pull.MergeCommit}}</a>{{end}}</p>
+{{else if or $.Data.HeadGone $.Data.BaseGone}}
+<p class="meta kosong-kecil">{{if $.Data.HeadGone}}{{$.T "ui.pull.head_gone" $.Data.HeadLabel}}{{else}}{{$.T "ui.pull.base_gone" $.Data.Pull.BaseBranch}}{{end}}</p>
+{{else}}
+<nav class="papar-diff isih" aria-label="{{$.T "ui.diff.view"}}"><a href="?"{{if not $.Data.Split}} aria-current="true"{{end}}>{{$.T "ui.diff.unified"}}</a><a href="?papar=belah"{{if $.Data.Split}} aria-current="true"{{end}}>{{$.T "ui.diff.split"}}</a></nav>
+<details class="lipat" open>
+  <summary class="kepala-bahagian">{{$.N "ui.commit.files" (len $.Data.Diff.Stats)}} · <span class="statistik-tambah">+{{$.Data.Diff.Added}}</span> <span class="statistik-buang">−{{$.Data.Diff.Deleted}}</span></summary>
+  <ul class="lejar lejar-rapat ringkasan-diff">
+  {{range $i, $f := $.Data.Diff.Stats}}
+    <li><a class="baris" href="#fail-{{$i}}">
+      <span class="baris-nama mono">{{if .OldPath}}{{$.T "ui.commit.renamed" .OldPath .Path}}{{else}}{{.Path}}{{end}}</span>
+      <span class="baris-meta">{{if .Binary}}{{$.T "ui.commit.binary"}}{{end}}</span>
+      <span class="baris-nilai">{{if not .Binary}}<span class="statistik-tambah">+{{.Added}}</span> <span class="statistik-buang">−{{.Deleted}}</span>{{end}}</span>
+    </a></li>
+  {{end}}
+  </ul>
+</details>
+{{$boleh := and $.Data.CanComment $.Data.Pull.Open}}{{range $i, $f := $.Data.Diff.Files}}
+<section class="kotak-kod diff-fail" id="fail-{{$i}}" tabindex="0">
+  <div class="kotak-kod-kepala"><span class="nama">{{if .OldPath}}{{$.T "ui.commit.renamed" .OldPath .Path}}{{else}}{{.Path}}{{end}}</span>
+    {{if .Binary}}<span class="meta">{{$.T "ui.commit.binary"}}</span>{{end}}
+    <span class="alat"><a class="butang butang-kecil" href="/{{$.Data.HeadRepoPath}}/blob/{{$.Data.Pull.HeadBranch}}/{{.Path}}">{{$.T "ui.repo.tab_code"}}</a></span></div>
+  {{if .Lines}}{{$besar := and (gt $.Data.Fold 0) (gt (len .Lines) $.Data.Fold)}}{{if $besar}}<details class="lipat-diff"><summary>{{$.N "ui.diff.show_lines" (len .Lines)}}</summary>{{end}}{{if $.Data.Split}}<div class="diff diff-belah" tabindex="0" role="region" aria-label="{{.Path}}">
+  {{range splitDiff .Path .Lines}}{{if .Hunk}}<div class="baris-kod hunk"><span class="teks">{{.HTML}}</span></div>
+  {{else}}<div class="baris-kod"><span class="no">{{if and $boleh (eq .L.Kind "del")}}<a href="{{askHref $f.Path "old" .L.N}}" aria-label="{{$.T "ui.pull.comment_line" .L.N}}">{{.L.N}}</a>{{else if .L.N}}{{.L.N}}{{end}}</span><span class="teks sisi sisi-{{if .L.Kind}}{{.L.Kind}}{{else}}kosong{{end}}">{{.L.HTML}}</span><span class="no">{{if and $boleh .R.N}}<a href="{{askHref $f.Path "new" .R.N}}" aria-label="{{$.T "ui.pull.comment_line" .R.N}}">{{.R.N}}</a>{{else if .R.N}}{{.R.N}}{{end}}</span><span class="teks sisi sisi-{{if .R.Kind}}{{.R.Kind}}{{else}}kosong{{end}}">{{.R.HTML}}</span></div>
+  {{if eq .L.Kind "del"}}{{template "ulasan-baris" (dict "P" $ "Path" $f.Path "Side" "old" "Line" .L.N)}}{{end}}{{if .R.N}}{{template "ulasan-baris" (dict "P" $ "Path" $f.Path "Side" "new" "Line" .R.N)}}{{end}}
+  {{end}}{{end}}</div>{{else}}<div class="diff" tabindex="0" role="region" aria-label="{{.Path}}">
+  {{range hlDiff .Path .Lines}}{{if eq .Kind "hunk"}}<div class="baris-kod hunk"><span class="teks">{{.HTML}}</span></div>
+  {{else}}<div class="baris-kod{{if eq .Kind "add"}} tambah{{else if eq .Kind "del"}} buang{{end}}"><span class="no">{{if and $boleh (eq .Kind "del")}}<a href="{{askHref $f.Path "old" .Old}}" aria-label="{{$.T "ui.pull.comment_line" .Old}}">{{.Old}}</a>{{else if .Old}}{{.Old}}{{end}}</span><span class="no">{{if and $boleh .New}}<a href="{{askHref $f.Path "new" .New}}" aria-label="{{$.T "ui.pull.comment_line" .New}}">{{.New}}</a>{{else if .New}}{{.New}}{{end}}</span><span class="tanda">{{if eq .Kind "add"}}+{{else if eq .Kind "del"}}−{{end}}</span><span class="teks">{{.HTML}}</span></div>
+  {{if eq .Kind "del"}}{{template "ulasan-baris" (dict "P" $ "Path" $f.Path "Side" "old" "Line" .Old)}}{{else}}{{template "ulasan-baris" (dict "P" $ "Path" $f.Path "Side" "new" "Line" .New)}}{{end}}
+  {{end}}{{end}}</div>{{end}}{{if $besar}}</details>{{end}}{{end}}
+</section>
+{{end}}
+{{if $.Data.Outdated}}
+<section class="nota-lama" aria-labelledby="nota-lama-tajuk">
+  <h2 class="kepala-bahagian" id="nota-lama-tajuk">{{$.T "ui.pull.outdated_title"}}</h2>
+  {{range $.Data.Outdated}}{{template "nota-baris" (dict "N" . "P" $ "Where" true)}}{{end}}
+</section>
+{{end}}
+{{if $.Data.Diff.Truncated}}<p class="nota-kecil">{{$.T "ui.pull.truncated" $.Data.Max}}</p>{{end}}
+{{end}}
+{{template "foot" $}}
+
+{{define "ulasan-baris"}}{{$P := .P}}{{range notesAt $P.Data.Notes .Path .Side .Line}}{{template "nota-baris" (dict "N" . "P" $P "Where" false)}}{{end}}{{if and (eq $P.Data.Ask.Path .Path) (eq $P.Data.Ask.Side .Side) (eq $P.Data.Ask.Line .Line)}}
+<form class="borang-baris" id="borang-ulas" method="post" action="/{{$P.Data.Repo.Owner}}/{{$P.Data.Repo.Name}}/pr/{{$P.Data.Pull.Number}}/baris">
+  <input type="hidden" name="csrf" value="{{$P.CSRF}}"><input type="hidden" name="path" value="{{.Path}}"><input type="hidden" name="side" value="{{.Side}}"><input type="hidden" name="line" value="{{.Line}}">
+  <label for="ulas-badan">{{$P.T "ui.pull.line_label" .Path .Line}}</label>
+  <textarea id="ulas-badan" name="body" rows="4" required></textarea>
+  <div class="borang-baris-alat"><button class="butang butang-utama butang-kecil" type="submit">{{$P.T "ui.pull.line_send"}}</button><a class="butang butang-kecil" href="?">{{$P.T "ui.pull.line_cancel"}}</a></div>
+</form>{{end}}{{end}}
+
+{{define "nota-baris"}}<div class="nota-baris" id="ulasan-{{.N.ID}}">
+  <div class="nota-kepala"><a class="mono" href="/{{.N.Author}}">{{.N.Author}}</a>{{if .Where}} <span class="mono meta">{{.P.T "ui.pull.on_line" .N.Path .N.Line}}</span>{{end}}{{if .N.Outdated}} <span class="lencana">{{.P.T "ui.pull.outdated"}}</span>{{end}} <time class="meta" datetime="{{.N.CreatedAt}}" title="{{.N.CreatedAt}}">{{.P.Ago (parseTime .N.CreatedAt)}}</time></div>
+  <div class="prosa">{{.N.HTML}}</div>
+</div>{{end}}
+

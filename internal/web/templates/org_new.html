@@ -1,0 +1,12 @@
+{{template "head" $}}
+<div class="borang-sempit borang-kad kad">
+  <h1>{{$.T "ui.org.new_title"}}</h1>
+  <p class="meta">{{$.T "ui.org.new_intro"}}</p>
+  <form action="/org/baharu" method="post" novalidate>
+    <input type="hidden" name="csrf" value="{{$.CSRF}}">
+    {{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+    <label class="medan"><span>{{$.T "ui.org.name"}}</span><input type="text" name="name" value="{{$.Data.Name}}" autocapitalize="none" spellcheck="false" required autofocus></label>
+    <button class="butang butang-utama" type="submit">{{$.T "ui.org.create"}}</button>
+  </form>
+</div>
+{{template "foot" $}}

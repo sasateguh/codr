@@ -1,0 +1,26 @@
+{{template "head" $}}
+<h1>{{$.T "ui.audit.title"}}</h1>
+{{if $.Data.Rows}}
+<table class="tetapan audit">
+  <thead><tr><th>{{$.T "ui.audit.when"}}</th><th>{{$.T "ui.audit.who"}}</th><th>{{$.T "ui.audit.action"}}</th><th>{{$.T "ui.audit.target"}}</th><th>{{$.T "ui.audit.detail"}}</th></tr></thead>
+  <tbody>
+  {{range $.Data.Rows}}
+  <tr>
+    <td class="meta mono" data-l="{{$.T "ui.audit.when"}}">{{slice .At 0 16}}</td>
+    <td class="mono" data-l="{{$.T "ui.audit.who"}}">{{if .Actor}}{{.Actor}}{{else}}<span class="lembut">{{$.T "ui.audit.system"}}</span>{{end}}</td>
+    <td class="mono" data-l="{{$.T "ui.audit.action"}}">{{.Action}}</td>
+    <td class="mono" data-l="{{$.T "ui.audit.target"}}">{{.Target}}</td>
+    <td class="meta" data-l="{{$.T "ui.audit.detail"}}">{{.Detail}}</td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+{{if gt $.Data.Pages 1}}
+<nav class="mukasurat">
+  {{if gt $.Data.Page 1}}<a href="?muka={{sub $.Data.Page 1}}">← {{$.T "ui.log.newer"}}</a>{{end}}
+  <span class="meta">{{$.T "ui.repos.page" $.Data.Page $.Data.Pages}}</span>
+  {{if lt $.Data.Page $.Data.Pages}}<a href="?muka={{add $.Data.Page 1}}">{{$.T "ui.log.older"}} →</a>{{end}}
+</nav>
+{{end}}
+{{else}}<p class="kosong meta">{{$.T "ui.audit.empty"}}</p>{{end}}
+{{template "foot" $}}

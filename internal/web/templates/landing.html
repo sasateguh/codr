@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="{{$.Lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{{if not $.Data.Index}}<meta name="robots" content="noindex, nofollow">{{end}}
+<title>{{$.Title}}</title>
+<meta name="description" content="{{$.T "landing.description"}}">
+<link rel="canonical" href="{{$.Data.Canonical}}">
+<link rel="alternate" hreflang="ms" href="{{$.Data.MSURL}}">
+<link rel="alternate" hreflang="en" href="{{$.Data.ENURL}}">
+<link rel="alternate" hreflang="x-default" href="{{$.Data.RootURL}}">
+<link rel="icon" type="image/svg+xml" href="{{$.Static}}/logo.svg">
+<link rel="apple-touch-icon" href="{{$.Static}}/apple-touch-icon.png">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6f3">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f1013">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{$.SiteName}}">
+<meta property="og:url" content="{{$.Data.Canonical}}">
+<meta property="og:title" content="{{$.Title}}">
+<meta property="og:description" content="{{$.T "landing.description"}}">
+<meta property="og:image" content="{{$.OGImage}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{$.T "landing.og_alt"}}">
+<meta property="og:locale" content="{{if eq $.Lang "en-US"}}en_US{{else}}ms_MY{{end}}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{$.OGImage}}">
+{{if $.Data.Author.Name}}<meta name="author" content="{{$.Data.Author.Name}}">
+{{end}}<script type="application/ld+json">{{$.Data.JSONLD}}</script>
+<link rel="preload" href="{{$.Static}}/fonts/ibm-plex-sans-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{$.Static}}/codr.css">
+<link rel="stylesheet" href="{{$.Static}}/pendaratan.css">
+<script src="{{$.Static}}/tema.js"></script>
+</head>
+<body class="pendaratan">
+<a class="skip" href="#kandungan">{{$.T "ui.nav.skip"}}</a>
+<header class="p-kepala">
+  <div class="p-dalam p-kepala-dalam">
+    <a class="jenama" href="{{$.Data.Home}}" aria-label="{{$.SiteName}}"><svg class="tanda" viewBox="0 0 64 64" width="28" height="28" aria-hidden="true"><rect class="tanda-jubin" x="2" y="2" width="60" height="60" rx="14"/><path class="tanda-glif" d="M43.4 20.9 A15 15 0 1 0 43.4 43.1"/><circle class="tanda-nod" cx="43.4" cy="20.9" r="4.6"/><circle class="tanda-nod" cx="18.4" cy="32" r="4.6"/><circle class="tanda-nod" cx="43.4" cy="43.1" r="4.6"/></svg><span class="wordmark">{{$.SiteName}}</span></a>
+    <nav class="p-nav" aria-label="{{$.T "landing.nav.label"}}">
+      <a href="#produk">{{$.T "landing.nav.product"}}</a>
+      <a href="#ciri">{{$.T "landing.nav.features"}}</a>
+      <a href="#data">{{$.T "landing.nav.data"}}</a>
+      <a href="#pasang">{{$.T "landing.nav.install"}}</a>
+      <a href="{{$.Data.DesignPath}}">{{$.T "landing.nav.design"}}</a>
+      {{if $.Data.SourceURL}}<a href="{{$.Data.SourceURL}}" rel="noopener">{{$.T "landing.nav.source"}}</a>{{end}}
+    </nav>
+    <div class="p-alat">
+      <nav class="p-bahasa" aria-label="{{$.T "landing.nav.lang"}}">
+        <a href="{{$.Data.MSPath}}" hreflang="ms" lang="ms"{{if eq $.Lang "ms-MY"}} aria-current="page"{{end}} title="{{$.T "ui.footer.lang_ms"}}">{{$.T "ui.lang.ms"}}</a>
+        <a href="{{$.Data.ENPath}}" hreflang="en" lang="en"{{if eq $.Lang "en-US"}} aria-current="page"{{end}} title="{{$.T "ui.footer.lang_en"}}">{{$.T "ui.lang.en"}}</a>
+      </nav>
+      <button class="tema" type="button" hidden data-teks-gelap="{{$.T "ui.nav.theme_dark"}}" data-teks-cerah="{{$.T "ui.nav.theme_light"}}" aria-label="{{$.T "ui.nav.theme"}}">
+        <svg class="ikon ikon-bulan" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5z"/></svg>
+        <svg class="ikon ikon-suria" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="butang butang-kecil p-buka" href="{{$.Data.ForgeURL}}">{{$.T "landing.nav.open"}}</a>
+    </div>
+  </div>
+</header>
+<main id="kandungan" class="p-utama">
+<section class="p-hero">
+  <div class="p-lekat">
+  <div class="p-dalam p-hero-grid">
+    <div class="p-hero-teks">
+      <p class="p-kening">{{$.T "landing.hero.eyebrow"}}</p>
+      <h1>{{$.T "ui.brand.tagline"}}</h1>
+      <p class="p-lead">{{$.T "landing.hero.lead"}}</p>
+      <div class="p-cta">
+        {{if $.Data.DemoURL}}<a class="butang butang-utama p-besar" href="{{$.Data.DemoURL}}">{{$.T "landing.hero.cta_demo"}}</a>{{else}}<a class="butang butang-utama p-besar" href="{{$.Data.ForgeURL}}">{{$.T "landing.nav.open"}}</a>{{end}}
+        <a class="butang p-besar" href="#pasang">{{$.T "landing.hero.cta_install"}}</a>
+      </div>
+      {{if $.Data.CloneURL}}<div class="p-klon">
+        <span class="p-klon-label">{{$.T "landing.hero.clone_label"}}</span>
+        <code id="klon-contoh">{{$.T "landing.hero.clone_cmd" $.Data.CloneURL}}</code>
+        <button class="butang butang-kecil salin" type="button" hidden data-salin="klon-contoh" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button>
+      </div>{{end}}
+      <p class="p-fakta">{{$.T "landing.hero.facts"}}</p>
+    </div>
+    <figure class="p-objek">
+      <div class="p-pentas" role="img" aria-label="{{$.T "landing.figure.label"}}">
+        <svg class="p-statik" viewBox="0 0 256 256" aria-hidden="true"><path class="p-statik-garis" d="M173.5 81.9 A62 62 0 1 0 173.5 174.1"/><circle class="p-statik-nod" cx="173.5" cy="81.9" r="15"/><circle class="p-statik-nod" cx="70" cy="128" r="15"/><circle class="p-statik-nod" cx="173.5" cy="174.1" r="15"/><circle class="p-statik-teras" cx="173.5" cy="81.9" r="6"/><circle class="p-statik-teras" cx="70" cy="128" r="6"/><circle class="p-statik-teras" cx="173.5" cy="174.1" r="6"/></svg>
+        <canvas id="graf3d" class="p-kanvas" hidden data-commits="{{$.Data.Commits}}"></canvas>
+      </div>
+      <figcaption><span>{{$.T "landing.figure.caption"}}</span> <span class="p-petunjuk" hidden>{{$.T "landing.figure.hint"}}</span></figcaption>
+    </figure>
+  </div>
+  <div class="p-dalam p-tatal-baris"><a class="p-tatal" href="#produk">{{$.T "landing.hero.scroll"}}</a></div>
+  </div>
+</section>
+<section class="p-bukti" aria-labelledby="bukti-tajuk">
+  <div class="p-dalam">
+    <h2 class="p-bukti-kepala" id="bukti-tajuk"><span class="p-titik-hidup" aria-hidden="true"></span>{{$.T "landing.proof.label"}}</h2>
+    <dl class="p-angka">
+      {{if $.Data.BinaryMB}}<div class="p-muncul"><dt>{{$.T "landing.proof.binary"}}</dt><dd><span class="p-nilai">{{$.Data.BinaryMB}}</span><span class="p-unit">{{$.T "landing.proof.unit_mb"}}</span></dd></div>{{end}}
+      {{if $.Data.Repos}}<div class="p-muncul"><dt>{{$.T "landing.proof.repos" $.Data.ForgeHost}}</dt><dd><span class="p-nilai">{{$.Data.Repos}}</span></dd></div>{{end}}
+      {{if $.Data.MemoryMB}}<div class="p-muncul"><dt>{{$.T "landing.proof.memory"}}</dt><dd><span class="p-nilai">{{$.Data.MemoryMB}}</span><span class="p-unit">{{$.T "landing.proof.unit_mb"}}</span></dd></div>{{end}}
+      <div class="p-muncul"><dt>{{$.T "landing.proof.services"}}</dt><dd><span class="p-nilai">{{$.T "landing.proof.zero"}}</span></dd></div>
+    </dl>
+  </div>
+</section>
+
+<section id="produk" class="p-bahagian p-produk" aria-labelledby="produk-tajuk">
+  <div class="p-dalam">
+    <div class="p-tajuk p-muncul">
+      <h2 id="produk-tajuk">{{$.T "landing.product.title"}}</h2>
+      <p>{{$.T "landing.product.lead"}}</p>
+    </div>
+    <div class="p-skrin-grid p-condong">
+      <figure class="p-skrin p-skrin-besar">
+        <div class="p-bingkai">
+          <p class="p-bingkai-alamat">{{$.T "landing.product.shot1_path" $.Data.ForgeHost}}</p>
+          <img class="p-cerah-sahaja" src="{{$.Static}}/produk/pr-cerah-{{if eq $.Lang "en-US"}}en{{else}}ms{{end}}.webp" width="1440" height="900" loading="lazy" decoding="async" fetchpriority="low" alt="{{$.T "landing.product.shot1_alt"}}">
+          <img class="p-gelap-sahaja" src="{{$.Static}}/produk/pr-gelap-{{if eq $.Lang "en-US"}}en{{else}}ms{{end}}.webp" width="1440" height="900" loading="lazy" decoding="async" fetchpriority="low" alt="{{$.T "landing.product.shot1_alt"}}">
+        </div>
+        <figcaption>{{$.T "landing.product.shot1_cap"}}</figcaption>
+      </figure>
+      <figure class="p-skrin">
+        <div class="p-bingkai">
+          <p class="p-bingkai-alamat">{{$.T "landing.product.shot2_path" $.Data.ForgeHost}}</p>
+          <img class="p-cerah-sahaja" src="{{$.Static}}/produk/fail-cerah-{{if eq $.Lang "en-US"}}en{{else}}ms{{end}}.webp" width="1440" height="900" loading="lazy" decoding="async" fetchpriority="low" alt="{{$.T "landing.product.shot2_alt"}}">
+          <img class="p-gelap-sahaja" src="{{$.Static}}/produk/fail-gelap-{{if eq $.Lang "en-US"}}en{{else}}ms{{end}}.webp" width="1440" height="900" loading="lazy" decoding="async" fetchpriority="low" alt="{{$.T "landing.product.shot2_alt"}}">
+        </div>
+        <figcaption>{{$.T "landing.product.shot2_cap"}}</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="peraturan" class="p-bahagian p-malam" aria-labelledby="peraturan-tajuk">
+  <div class="p-dalam p-dua">
+    <div>
+      <div class="p-tajuk p-muncul">
+        <h2 id="peraturan-tajuk">{{$.T "landing.rules.title"}}</h2>
+        <p>{{$.T "landing.rules.lead"}}</p>
+      </div>
+      <dl class="p-titik">
+        <div><dt>{{$.T "landing.rules.p1t"}}</dt><dd>{{$.T "landing.rules.p1d"}}</dd></div>
+        <div><dt>{{$.T "landing.rules.p2t"}}</dt><dd>{{$.T "landing.rules.p2d"}}</dd></div>
+      </dl>
+    </div>
+    <figure class="p-terminal kad p-terminal-hidup">
+      <figcaption>{{$.T "landing.rules.box"}}</figcaption>
+      <pre><code><span class="p-arahan">{{$.T "landing.term.c1"}}</span>
+<span class="p-hasil">{{$.T "landing.term.o1"}}</span>
+<span class="p-hasil">{{$.T "landing.term.o2"}}</span>
+<span class="p-hasil">{{$.T "landing.term.o3" $.Data.ForgeHost}}</span>
+<span class="p-hasil p-ok">{{$.T "landing.term.o4"}}</span>
+<span class="p-arahan">{{$.T "landing.term.c2"}}</span>
+<span class="p-hasil p-tolak">{{$.T "landing.term.o5" $.Data.Rejected}}</span>
+<span class="p-hasil">{{$.T "landing.term.o6"}}</span></code></pre>
+    </figure>
+  </div>
+</section>
+
+<section id="ciri" class="p-bahagian" aria-labelledby="ciri-tajuk">
+  <div class="p-dalam">
+    <div class="p-tajuk p-muncul">
+      <h2 id="ciri-tajuk">{{$.T "landing.features.title"}}</h2>
+      <p>{{$.T "landing.features.lead" $.Data.ForgeHost}}</p>
+    </div>
+    <ol class="p-ciri">
+      <li class="p-muncul"><svg class="p-ikon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 20V4M4 8l4-4 4 4M16 4v16M12 16l4 4 4-4"/></svg><h3>{{$.T "landing.f1.t"}}</h3><p>{{$.T "landing.f1.d"}}</p></li>
+      <li class="p-muncul"><svg class="p-ikon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="18" r="2.2"/><path d="M6 8.2v7.6M18 15.8V10a4 4 0 0 0-4-4h-3.5M12.5 3.8 10.3 6l2.2 2.2"/></svg><h3>{{$.T "landing.f2.t"}}</h3><p>{{$.T "landing.f2.d"}}</p></li>
+      <li class="p-muncul"><svg class="p-ikon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 10.5A7.5 7.5 0 0 0 6 6.6L4 8.6M4 4.5v4.1h4.1M4.5 13.5A7.5 7.5 0 0 0 18 17.4l2-2M20 19.5v-4.1h-4.1"/></svg><h3>{{$.T "landing.f3.t"}}</h3><p>{{$.T "landing.f3.d"}}</p></li>
+      <li class="p-muncul"><svg class="p-ikon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h17v4h-17zM5.5 9.5v9h13v-9M10 13h4"/></svg><h3>{{$.T "landing.f4.t"}}</h3><p>{{$.T "landing.f4.d"}}</p></li>
+      <li class="p-muncul"><svg class="p-ikon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3.5H6.5v17h11V7zM14 3.5V7h3.5M9.5 11.5h5M9.5 15h3"/></svg><h3>{{$.T "landing.f5.t"}}</h3><p>{{$.T "landing.f5.d"}}</p></li>
+      <li class="p-muncul"><svg class="p-ikon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2.2-5.5 4.6 11L16 12h5"/></svg><h3>{{$.T "landing.f6.t"}}</h3><p>{{$.T "landing.f6.d"}}</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="data" class="p-bahagian" aria-labelledby="data-tajuk">
+  <div class="p-dalam p-dua">
+    <div>
+      <div class="p-tajuk p-muncul">
+        <h2 id="data-tajuk">{{$.T "landing.data.title"}}</h2>
+        <p>{{$.T "landing.data.lead"}}</p>
+      </div>
+      <dl class="p-titik">
+        <div><dt>{{$.T "landing.data.p1t"}}</dt><dd>{{$.T "landing.data.p1d"}}</dd></div>
+        <div><dt>{{$.T "landing.data.p2t"}}</dt><dd>{{$.T "landing.data.p2d"}}</dd></div>
+      </dl>
+    </div>
+    <figure class="p-terminal kad p-muncul">
+      <figcaption>{{$.T "landing.data.box"}}</figcaption>
+      <pre><code><span class="p-arahan">{{$.T "landing.data.cmd1"}}</span>
+<span class="p-hasil">{{$.T "landing.data.out1"}}</span>
+<span class="p-arahan">{{$.T "landing.data.cmd2"}}</span>
+<span class="p-hasil">{{$.T "landing.data.out2"}}</span></code></pre>
+    </figure>
+  </div>
+</section>
+
+{{if $.Data.Next}}
+<section id="seterusnya" class="p-bahagian" aria-labelledby="seterusnya-tajuk">
+  <div class="p-dalam">
+    <div class="p-tajuk p-muncul">
+      {{if $.Data.NextDone}}<h2 id="seterusnya-tajuk">{{$.T "landing.next.title_done"}}</h2>
+      <p>{{$.T "landing.next.lead_done"}}</p>{{else}}<h2 id="seterusnya-tajuk">{{$.T "landing.next.title"}}</h2>
+      <p>{{$.T "landing.next.lead"}}</p>{{end}}
+    </div>
+    <ol class="p-seterusnya">
+      {{range $.Data.Next}}<li class="p-muncul p-status-{{.Status}}"><span class="p-lencana-status">{{$.T (printf "landing.next.status.%s" .Status)}}</span><h3>{{$.T (printf "landing.next.%s.t" .Key)}}</h3><p>{{$.T (printf "landing.next.%s.d" .Key)}}</p></li>
+      {{end}}
+    </ol>
+  </div>
+</section>
+{{end}}
+
+<section class="p-bahagian" aria-labelledby="sesuai-tajuk">
+  <div class="p-dalam">
+    <div class="p-tajuk p-muncul"><h2 id="sesuai-tajuk">{{$.T "landing.fit.title"}}</h2></div>
+    <div class="p-sesuai">
+      <div>
+        <h3>{{$.T "landing.fit.yes_title"}}</h3>
+        <ul class="p-ya">
+          <li>{{$.T "landing.fit.yes1"}}</li>
+          <li>{{$.T "landing.fit.yes2"}}</li>
+          <li>{{$.T "landing.fit.yes3"}}</li>
+        </ul>
+      </div>
+      <div>
+        <h3>{{$.T "landing.fit.no_title"}}</h3>
+        <ul class="p-tidak">
+          <li>{{$.T "landing.fit.no1"}}</li>
+          <li>{{$.T "landing.fit.no2"}}</li>
+          <li>{{$.T "landing.fit.no3"}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pasang" class="p-bahagian" aria-labelledby="pasang-tajuk">
+  <div class="p-dalam">
+    <div class="p-tajuk p-muncul">
+      <h2 id="pasang-tajuk">{{$.T "landing.install.title"}}</h2>
+      <p>{{$.T "landing.install.lead"}}</p>
+    </div>
+    <ol class="p-langkah kad">
+      <li><span class="p-langkah-nama">{{$.T "landing.install.s1"}}</span><code id="pasang-1">{{$.T "landing.install.c1"}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-1" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
+      <li><span class="p-langkah-nama">{{$.T "landing.install.s2"}}</span><code id="pasang-2">{{$.T "landing.install.c2"}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-2" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
+      <li><span class="p-langkah-nama">{{$.T "landing.install.s3"}}</span><code id="pasang-3">{{$.T "landing.install.c3"}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-3" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
+      <li><span class="p-langkah-nama">{{$.T "landing.install.s4"}}</span><code id="pasang-4">{{$.T "landing.install.c4"}}</code><button class="butang butang-kecil salin" type="button" hidden data-salin="pasang-4" data-disalin-teks="{{$.T "landing.install.copied"}}">{{$.T "landing.install.copy"}}</button></li>
+    </ol>
+    <p class="p-lesen">{{$.T "landing.install.licence"}}{{if $.Data.SourceURL}} <a href="{{$.Data.SourceURL}}">{{$.T "landing.install.source"}}</a>{{end}}</p>
+  </div>
+</section>
+
+<section class="p-bahagian p-akhir" aria-labelledby="akhir-tajuk">
+  <div class="p-dalam">
+    <p class="p-kening">{{$.T "landing.end.kicker"}}</p>
+    <h2 id="akhir-tajuk">{{$.T "landing.end.title"}}</h2>
+    <p>{{if $.Data.DemoURL}}{{$.T "landing.end.lead_demo"}}{{else}}{{$.T "landing.end.lead_forge" $.Data.ForgeHost}}{{end}}</p>
+    <div class="p-cta">
+      {{if $.Data.DemoURL}}<a class="butang butang-utama p-besar" href="{{$.Data.DemoURL}}">{{$.T "landing.hero.cta_demo"}}</a>{{end}}
+      <a class="butang{{if not $.Data.DemoURL}} butang-utama{{end}} p-besar" href="{{$.Data.ForgeURL}}">{{$.T "landing.nav.open"}}</a>
+      {{if $.Data.Contact}}<a class="butang p-besar" href="mailto:{{$.Data.Contact}}">{{$.T "landing.end.contact"}}</a>{{end}}
+    </div>
+  </div>
+</section>
+</main>
+<div class="p-gergasi" aria-hidden="true"><div class="p-dalam"><span>{{$.SiteName}}</span></div></div>
+<footer class="p-kaki">
+  <div class="p-dalam p-kaki-dalam">
+    <span>{{$.SiteName}} · {{$.T "landing.footer.built"}}{{if or $.Data.Author.URL $.Data.Publisher.URL}} {{$.T "landing.footer.by"}}{{if $.Data.Author.URL}} <a href="{{$.Data.Author.URL}}" rel="author">{{$.Data.Author.Name}}</a>{{end}}{{if and $.Data.Author.URL $.Data.Publisher.URL}} ·{{end}}{{if $.Data.Publisher.URL}} <a href="{{$.Data.Publisher.URL}}">{{$.Data.Publisher.Name}}</a>{{end}}{{end}}</span>
+    <span class="lembut">{{if $.Data.SourceURL}}<a href="{{$.Data.SourceURL}}" rel="noopener">{{$.T "landing.footer.licence"}}</a>{{else}}{{$.T "landing.footer.licence"}}{{end}} · {{$.T "landing.footer.version" $.Version}}</span>
+  </div>
+</footer>
+<script src="{{$.Static}}/codr.js" defer></script>
+<script src="{{$.Static}}/pendaratan.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="kepala-senarai">
+  <h1 class="mono tajuk-hook">{{$.Data.Hook.URL}}</h1>
+  <a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/webhook">{{$.T "ui.hook.back"}}</a>
+</div>
+{{if $.Data.NewSecret}}
+<section class="kotak-token" aria-live="polite">
+  <p class="berjaya">{{$.T "ui.hook.secret_new"}}</p>
+  <pre class="kod-arahan mono" tabindex="0">{{$.Data.NewSecret}}</pre>
+  <p class="nota-kecil">{{$.T "ui.hook.secret_once"}}</p>
+</section>
+{{end}}
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+<form class="borang-sempit borang-kad kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/webhook/{{$.Data.Hook.ID}}/simpan" method="post" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.hook.url"}}</span><input type="url" name="url" value="{{$.Data.Hook.URL}}" maxlength="2000" required autocomplete="off" inputmode="url"></label>
+  {{template "hook-peristiwa" $}}
+  <fieldset class="medan pilihan">
+    <legend>{{$.T "ui.hook.switch"}}</legend>
+    <label><input type="checkbox" name="active" value="1"{{if $.Data.Hook.Active}} checked{{end}}> {{$.T "ui.hook.active"}}</label>
+  </fieldset>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.hook.save"}}</button>
+</form>
+<div class="baris-butang">
+  <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/webhook/{{$.Data.Hook.ID}}/uji" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang" type="submit">{{$.T "ui.hook.test"}}</button></form>
+  <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/webhook/{{$.Data.Hook.ID}}/rahsia" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang" type="submit">{{$.T "ui.hook.rotate"}}</button></form>
+  <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/webhook/{{$.Data.Hook.ID}}/padam" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang butang-bahaya" type="submit">{{$.T "ui.hook.remove"}}</button></form>
+</div>
+<h2 class="kepala-bahagian">{{$.T "ui.hook.deliveries"}}</h2>
+{{if $.Data.Deliveries}}
+<ul class="lejar lejar-hantaran">
+{{range $.Data.Deliveries}}
+  <li class="hantaran">
+    <details>
+      <summary><span class="hantaran-kepala">{{template "hook-keadaan" (dict "P" $ "State" .State)}} <span class="mono">{{.Kind}}</span> <span class="meta">{{$.Ago (parseTime .CreatedAt)}}</span></span>
+        <span class="meta mono">{{if .StatusCode}}{{$.T "ui.hook.code" .StatusCode}} · {{end}}{{$.T "ui.hook.ms" .DurationMS}} · {{$.N "ui.hook.attempts" .Attempts}}</span></summary>
+      <div class="hantaran-isi">
+        {{if .Error}}<p class="ralat">{{.Error}}</p>{{end}}
+        {{if eq .State "pending"}}{{if .Attempts}}<p class="meta">{{$.T "ui.hook.next_try" ($.Ago (parseTime .NextAt))}}</p>{{end}}{{end}}
+        <p class="meta mono">{{$.T "ui.hook.guid"}} {{.GUID}}</p>
+        <h3 class="kepala-kecil">{{$.T "ui.hook.payload"}}</h3>
+        <pre class="kod-arahan mono hantaran-badan" tabindex="0">{{.Payload}}</pre>
+        {{if .Response}}<h3 class="kepala-kecil">{{$.T "ui.hook.response"}}</h3><pre class="kod-arahan mono hantaran-badan" tabindex="0">{{.Response}}</pre>{{end}}
+        <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/webhook/{{$.Data.Hook.ID}}/hantar" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="delivery" value="{{.ID}}"><button class="butang butang-kecil" type="submit">{{$.T "ui.hook.resend"}}</button></form>
+      </div>
+    </details>
+  </li>
+{{end}}
+</ul>
+{{else}}<p class="meta kosong-kecil">{{$.T "ui.hook.no_deliveries"}}</p>{{end}}
+{{template "foot" $}}

@@ -1,0 +1,149 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+{{template "pr-kepala" $}}
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+<div class="isu-grid">
+  <div class="isu-utama">
+    <article class="komen kad">
+      <header class="komen-kepala">{{template "penulis" (dict "A" $.Data.Pull.Author "U" $.Data.Pull.ExtURL "P" $)}} <time class="meta" datetime="{{$.Data.Pull.CreatedAt}}" title="{{$.Data.Pull.CreatedAt}}">{{$.Ago (parseTime $.Data.Pull.CreatedAt)}}</time></header>
+      <div class="prosa komen-badan">{{if $.Data.Pull.Body}}{{$.Data.BodyHTML}}{{else}}<p class="meta">{{$.T "ui.issue.no_body"}}</p>{{end}}</div>
+    </article>
+    {{range $.Data.Reviews}}
+    <article class="komen kad semakan semakan-{{.Verdict}}" id="semak-{{.ID}}">
+      <header class="komen-kepala"><a class="mono" href="/{{.Reviewer}}">{{.Reviewer}}</a> <span class="pil-keadaan {{.Verdict}}">{{$.T (printf "ui.pull.verdict_%s" .Verdict)}}</span> <a class="meta" href="#semak-{{.ID}}"><time datetime="{{.CreatedAt}}" title="{{.CreatedAt}}">{{$.Ago (parseTime .CreatedAt)}}</time></a></header>
+      {{if .Body}}<div class="prosa komen-badan">{{.HTML}}</div>{{end}}
+    </article>
+    {{end}}
+    {{range $.Data.Comments}}
+    <article class="komen kad" id="komen-{{.ID}}">
+      <header class="komen-kepala">{{template "penulis" (dict "A" .Author "U" .ExtURL "P" $)}} <a class="meta" href="#komen-{{.ID}}"><time datetime="{{.CreatedAt}}" title="{{.CreatedAt}}">{{$.Ago (parseTime .CreatedAt)}}</time></a></header>
+      <div class="prosa komen-badan">{{.HTML}}</div>
+    </article>
+    {{end}}
+    {{range $.Data.AllNotes}}
+    <article class="komen kad komen-baris">
+      <header class="komen-kepala"><a class="mono" href="/{{.Author}}">{{.Author}}</a> <a class="mono meta" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/fail#ulasan-{{.ID}}">{{$.T "ui.pull.on_line" .Path .Line}}</a>{{if .Outdated}} <span class="lencana">{{$.T "ui.pull.outdated"}}</span>{{end}} <time class="meta" datetime="{{.CreatedAt}}" title="{{.CreatedAt}}">{{$.Ago (parseTime .CreatedAt)}}</time></header>
+      <div class="prosa komen-badan">{{.HTML}}</div>
+    </article>
+    {{end}}
+    {{range $.Data.AINotes}}
+    <article class="komen kad komen-ai" id="ai-{{.ID}}">
+      <header class="komen-kepala"><span class="lencana-ai">{{$.T (printf "ui.ai.kind_%s" .Kind)}}</span> <span class="meta">{{$.T "ui.ai.by" .Model .RequestedBy}}</span>{{if .Stale}} <span class="lencana">{{$.T "ui.pull.outdated"}}</span>{{end}} <a class="meta" href="#ai-{{.ID}}"><time datetime="{{.CreatedAt}}" title="{{.CreatedAt}}">{{$.Ago (parseTime .CreatedAt)}}</time></a></header>
+      <div class="prosa komen-badan">{{.HTML}}</div>
+      <p class="nota-kecil komen-ai-kaki">{{$.T "ui.ai.disclaimer"}}</p>
+    </article>
+    {{end}}
+    {{if and $.Data.AIReady $.Data.Pull.Open}}
+    <section class="kad kotak-ai" aria-labelledby="ai-tajuk">
+      <h2 class="kepala-bahagian" id="ai-tajuk">{{$.T "ui.ai.ask"}}</h2>
+      <div class="kotak-ai-alat">
+        <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/ai" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="kind" value="summary"><button class="butang" type="submit">{{$.T "ui.ai.do_summary"}}</button></form>
+        <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/ai" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="kind" value="review"><button class="butang" type="submit">{{$.T "ui.ai.do_review"}}</button></form>
+      </div>
+      <p class="nota-kecil">{{$.T "ui.ai.sends_to" $.Data.AIHost}}</p>
+    </section>
+    {{end}}
+    {{if $.Data.Pull.Open}}
+    <section class="kad kotak-gabung {{if $.Data.Mergeable}}boleh{{else}}tidak{{end}}">
+      {{if $.Data.HeadGone}}<p class="meta">{{$.T "ui.pull.head_gone" $.Data.HeadLabel}}</p>
+      {{else if $.Data.BaseGone}}<p class="meta">{{$.T "ui.pull.base_gone" $.Data.Pull.BaseBranch}}</p>
+      {{else if $.Data.Conflict}}<p><strong>{{$.T "ui.pull.conflict"}}</strong></p><p class="meta">{{$.T "ui.pull.conflict_hint" $.Data.Pull.BaseBranch $.Data.HeadLabel}}</p><ul class="senarai-konflik mono">{{range $.Data.Conflict}}<li>{{.}}</li>{{end}}</ul>
+      {{else}}<p><strong>{{$.T "ui.pull.mergeable"}}</strong></p>
+        {{if $.Data.CanMerge}}<form class="borang-gabung" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/gabung" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}">
+          {{$styles := $.Data.Repo.Styles}}{{if gt (len $styles) 1}}<fieldset class="medan pilihan cara-gabung"><legend>{{$.T "ui.pull.style"}}</legend>
+          {{range $i, $c := $styles}}<label><input type="radio" name="cara" value="{{$c}}"{{if eq $i 0}} checked{{end}}> <span><strong>{{$.T (printf "ui.pull.style.%s" $c)}}</strong> <span class="meta nota-pilihan">{{$.T (printf "ui.pull.style_note.%s" $c)}}</span></span></label>{{end}}
+          </fieldset>{{else}}<input type="hidden" name="cara" value="{{index $styles 0}}"><p class="nota-kecil">{{$.T (printf "ui.pull.style_note.%s" (index $styles 0))}}</p>{{end}}
+          <button class="butang butang-utama" type="submit">{{$.T "ui.pull.merge" $.Data.HeadLabel $.Data.Pull.BaseBranch}}</button></form>
+          <p class="nota-kecil">{{$.T "ui.pull.merge_note"}}</p>
+        {{else if $.Data.NeedChecks}}<p class="meta">{{$.T "ui.pull.need_checks" $.Data.Pull.BaseBranch}}</p>
+        {{else if $.Data.NeedReview}}<p class="meta">{{$.T "ui.pull.need_review" $.Data.Pull.BaseBranch}}</p>
+        {{else if not $.User}}<p class="meta"><a href="/login?next={{$.Path}}">{{$.T "ui.nav.login"}}</a></p>
+        {{else}}<p class="meta">{{$.T "ui.pull.merge_no_access"}}</p>{{end}}
+      {{end}}
+    </section>
+    {{end}}
+    {{if $.Data.CanReview}}
+    <form class="komen-borang kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/semak" method="post" novalidate>
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      <p class="kepala-bahagian">{{$.T "ui.pull.review"}}</p>
+      <label class="medan"><span>{{$.T "ui.pull.review_note"}}</span><textarea name="body" rows="4">{{$.Data.Draft}}</textarea></label>
+      <fieldset class="medan pilihan"><legend class="tersembunyi">{{$.T "ui.pull.review"}}</legend>
+        <label><input type="radio" name="verdict" value="approve" checked> {{$.T "ui.pull.verdict_approve"}}</label>
+        <label><input type="radio" name="verdict" value="changes"> {{$.T "ui.pull.verdict_changes"}}</label>
+        <label><input type="radio" name="verdict" value="comment"> {{$.T "ui.pull.verdict_comment"}}</label>
+      </fieldset>
+      <button class="butang butang-utama" type="submit">{{$.T "ui.pull.review_submit"}}</button>
+    </form>
+    {{end}}
+    {{if $.Data.CanComment}}
+    <form class="komen-borang kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/komen" method="post" novalidate>
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      <label class="medan"><span>{{$.T "ui.issue.comment"}}</span><textarea name="body" rows="5" required>{{if not $.Data.CanReview}}{{$.Data.Draft}}{{end}}</textarea></label>
+      <p class="nota-kecil">{{$.T "ui.issue.markdown_hint"}}</p>
+      <button class="butang" type="submit">{{$.T "ui.issue.comment_submit"}}</button>
+    </form>
+    {{else if not $.User}}<p class="meta kosong-kecil"><a href="/login?next={{$.Path}}">{{$.T "ui.issue.login_to_comment"}}</a></p>{{end}}
+  </div>
+  <aside class="isu-sisi">
+    <div class="kad sisi-kad">
+      <p class="kepala-bahagian">{{$.T "ui.pull.branches"}}</p>
+      <p class="mono cawangan-pr"><a href="/{{$.Data.HeadRepoPath}}/tree/{{$.Data.Pull.HeadBranch}}">{{$.Data.HeadLabel}}</a> → <a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{$.Data.Pull.BaseBranch}}">{{$.Data.Pull.BaseBranch}}</a></p>
+      {{if $.Data.Pull.MergeCommit}}<p class="meta">{{$.T "ui.pull.merge_commit"}} <a class="mono" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commit/{{$.Data.Pull.MergeCommit}}">{{short $.Data.Pull.MergeCommit}}</a></p>{{end}}
+    </div>
+    {{if $.Data.Checks}}<div class="kad sisi-kad">{{template "semakan-ci" $}}</div>{{end}}
+    {{template "penerima" (dict "P" $ "A" (printf "/%s/%s/pr/%d/penerima" $.Data.Repo.Owner $.Data.Repo.Name $.Data.Pull.Number) "L" $.Data.Assignees "C" $.Data.CanAssign)}}
+    {{if $.Data.Verdicts}}
+    <div class="kad sisi-kad">
+      <p class="kepala-bahagian">{{$.T "ui.pull.reviews"}}</p>
+      <ul class="senarai-verdict">{{range $who, $v := $.Data.Verdicts}}<li><a class="mono" href="/{{$who}}">{{$who}}</a> <span class="pil-keadaan {{$v}}">{{$.T (printf "ui.pull.verdict_%s" $v)}}</span></li>{{end}}</ul>
+    </div>
+    {{end}}
+    {{if $.Data.Commits}}
+    <div class="kad sisi-kad">
+      <p class="kepala-bahagian">{{$.N "ui.repo.commits" (len $.Data.Commits)}}</p>
+      <ul class="senarai-commit-pr">{{range $.Data.Commits}}<li><a class="mono" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commit/{{.Hash}}">{{.Short}}</a> <span class="lembut">{{.Subject}}</span></li>{{end}}</ul>
+    </div>
+    {{end}}
+    {{if $.Data.CanClose}}
+    <form class="kad sisi-kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/keadaan" method="post">
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      <p class="kepala-bahagian">{{$.T "ui.issue.state"}}</p>
+      <button class="butang butang-bahaya" type="submit" name="keadaan" value="closed">{{$.T "ui.pull.close"}}</button>
+    </form>
+    {{else if $.Data.CanReopen}}
+    <form class="kad sisi-kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/keadaan" method="post">
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      <p class="kepala-bahagian">{{$.T "ui.issue.state"}}</p>
+      <button class="butang" type="submit" name="keadaan" value="open">{{$.T "ui.issue.reopen"}}</button>
+    </form>
+    {{end}}
+    {{if $.Data.CanEdit}}
+    <details class="kad sisi-kad lipat-sunting">
+      <summary class="kepala-bahagian">{{$.T "ui.pull.edit"}}</summary>
+      <form action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/sunting" method="post" novalidate>
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <label class="medan"><span>{{$.T "ui.issue.field_title"}}</span><input type="text" name="title" value="{{$.Data.Pull.Title}}" maxlength="200" required></label>
+        <label class="medan"><span>{{$.T "ui.issue.field_body"}}</span><textarea name="body" rows="8">{{$.Data.Pull.Body}}</textarea></label>
+        <button class="butang butang-kecil" type="submit">{{$.T "ui.issue.save"}}</button>
+      </form>
+    </details>
+    {{end}}
+  </aside>
+</div>
+{{template "foot" $}}
+
+{{define "pr-kepala"}}
+<div class="isu-tajuk">
+  <h1>{{$.Data.Pull.Title}} <span class="lembut nombor">#{{$.Data.Pull.Number}}</span></h1>
+  <p class="meta-baris isu-meta">
+    <span class="pil-keadaan {{$.Data.Pull.State}}">{{$.T (printf "ui.pull.state_%s" $.Data.Pull.State)}}</span>
+    <span>{{$.T "ui.issue.opened_by" $.Data.Pull.Author ($.Ago (parseTime $.Data.Pull.CreatedAt))}}</span>
+    <span class="mono">{{$.Data.HeadLabel}} → {{$.Data.Pull.BaseBranch}}</span>
+    {{if $.Data.Pull.Merged}}<span>{{$.T "ui.pull.merged_by" $.Data.Pull.MergedBy ($.Ago (parseTime $.Data.Pull.ClosedAt))}}</span>{{end}}
+  </p>
+</div>
+<nav class="tab tab-kecil" aria-label="{{$.T "ui.pull.tabs_label" $.Data.Pull.Number}}">
+  <a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}"{{if not $.Data.Files}} aria-current="page"{{end}}>{{$.T "ui.pull.tab_conv"}}{{if $.Data.Comments}}<span class="kiraan">{{len $.Data.Comments}}</span>{{end}}</a>
+  <a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/pr/{{$.Data.Pull.Number}}/fail"{{if $.Data.Files}} aria-current="page"{{end}}>{{$.T "ui.pull.tab_files"}}{{if $.Data.Commits}}<span class="kiraan">{{len $.Data.Commits}}</span>{{end}}</a>
+</nav>
+{{end}}

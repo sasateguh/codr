@@ -1,0 +1,23 @@
+{{template "head" $}}
+<h1>{{$.T "ui.oidc.title"}}</h1>
+<p class="meta prosa">{{$.T "ui.oidc.intro"}}</p>
+{{if $.Data.NoKey}}<p class="ralat" role="alert">{{$.T "ui.cloud.no_secret_key"}}</p>{{end}}
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+<form action="/admin/oidc" method="post" class="borang-sempit" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.oidc.name"}}</span><input type="text" name="name" value="{{$.Data.Config.Name}}" maxlength="60" placeholder="Google Workspace"></label>
+  <label class="medan"><span>{{$.T "ui.oidc.issuer"}}</span><input type="url" name="issuer" value="{{$.Data.Config.Issuer}}" placeholder="https://accounts.google.com" autocapitalize="none" spellcheck="false"></label>
+  <p class="nota-kecil">{{$.T "ui.oidc.issuer_hint"}}</p>
+  <label class="medan"><span>{{$.T "ui.oidc.client_id"}}</span><input type="text" name="client_id" value="{{$.Data.Config.ClientID}}" autocapitalize="none" spellcheck="false"></label>
+  <label class="medan"><span>{{$.T "ui.oidc.secret"}}</span><input type="password" name="secret" value="" autocomplete="new-password" placeholder="{{if $.Data.HasSecret}}{{$.T "ui.cloud.secret_kept"}}{{end}}"></label>
+  <label class="medan"><span>{{$.T "ui.oidc.scopes"}}</span><input type="text" name="scopes" value="{{$.Data.Config.Scopes}}" autocapitalize="none" spellcheck="false"></label>
+  <p class="nota-kecil">{{$.T "ui.oidc.redirect"}}</p>
+  <pre class="kod-arahan mono" tabindex="0">{{$.Data.Redirect}}</pre>
+  <fieldset class="medan pilihan">
+    <legend>{{$.T "ui.oidc.switch"}}</legend>
+    <label><input type="checkbox" name="enabled" value="1"{{if $.Data.Config.Enabled}} checked{{end}}> <span><strong>{{$.T "ui.oidc.enabled"}}</strong> <span class="meta nota-pilihan">{{$.T "ui.oidc.enabled_note"}}</span></span></label>
+  </fieldset>
+  <button class="butang butang-utama" type="submit"{{if $.Data.NoKey}} disabled{{end}}>{{$.T "ui.cloud.save"}}</button>
+</form>
+{{if $.Data.Config.Issuer}}<form action="/admin/oidc/uji" method="post" class="borang-sempit"><input type="hidden" name="csrf" value="{{$.CSRF}}"><button class="butang" type="submit">{{$.T "ui.oidc.test"}}</button></form>{{end}}
+{{template "foot" $}}

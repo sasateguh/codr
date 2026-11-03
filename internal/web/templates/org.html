@@ -1,0 +1,66 @@
+{{template "head" $}}
+{{with $.Data.Org}}
+<div class="repo-kepala">
+  <span class="jubin jubin-besar {{hue .Name}}" aria-hidden="true">{{initial .Name}}</span>
+  <div><h1><a href="/{{.Name}}">{{.Name}}</a> <span class="lencana">{{$.T "ui.org.badge"}}</span></h1><p class="huraian lembut">{{$.T "ui.org.manage_intro"}}</p></div>
+</div>
+{{end}}
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+
+<h2 class="kepala-bahagian">{{$.T "ui.org.base_title"}}</h2>
+<form class="borang-sebaris" action="/org/{{$.Data.Org.Name}}/urus/asas" method="post">
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.org.base_label"}}</span><select name="role">
+    <option value="none"{{if eq $.Data.Org.BaseRole "none"}} selected{{end}}>{{$.T "ui.org.base_none"}}</option>
+    <option value="read"{{if eq $.Data.Org.BaseRole "read"}} selected{{end}}>{{$.T "ui.org.base_read"}}</option>
+    <option value="write"{{if eq $.Data.Org.BaseRole "write"}} selected{{end}}>{{$.T "ui.org.base_write"}}</option></select></label>
+  <button class="butang" type="submit">{{$.T "ui.org.save"}}</button>
+</form>
+
+<h2 class="kepala-bahagian">{{$.T "ui.org.members"}}</h2>
+<table class="tetapan">
+  <thead><tr><th>{{$.T "ui.org.col_person"}}</th><th>{{$.T "ui.org.col_role"}}</th><th><span class="tersembunyi">{{$.T "ui.org.remove"}}</span></th></tr></thead>
+  <tbody>
+  {{range $.Data.Members}}
+  <tr>
+    <td class="kunci" data-l="{{$.T "ui.org.col_person"}}"><a href="/{{.Name}}">{{.Name}}</a></td>
+    <td data-l="{{$.T "ui.org.col_role"}}"><form class="borang-sebaris" action="/org/{{$.Data.Org.Name}}/urus/ahli" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="user" value="{{.Name}}">
+      <select name="role" aria-label="{{$.T "ui.org.col_role"}} {{.Name}}"><option value="member"{{if eq .Role "member"}} selected{{end}}>{{$.T "ui.org.role_member"}}</option><option value="owner"{{if eq .Role "owner"}} selected{{end}}>{{$.T "ui.org.role_owner"}}</option></select>
+      <button class="butang butang-kecil" type="submit">{{$.T "ui.org.save"}}</button></form></td>
+    <td><form action="/org/{{$.Data.Org.Name}}/urus/buang" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="user" value="{{.Name}}"><button class="butang butang-kecil butang-bahaya" type="submit">{{$.T "ui.org.remove"}}</button></form></td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+<form class="borang-sebaris" action="/org/{{$.Data.Org.Name}}/urus/ahli" method="post">
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.org.add_person"}}</span><input type="text" name="user" autocapitalize="none" spellcheck="false" required></label>
+  <label class="medan"><span>{{$.T "ui.org.col_role"}}</span><select name="role"><option value="member">{{$.T "ui.org.role_member"}}</option><option value="owner">{{$.T "ui.org.role_owner"}}</option></select></label>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.org.add"}}</button>
+</form>
+
+<h2 class="kepala-bahagian">{{$.T "ui.org.teams"}}</h2>
+<p class="meta prosa">{{$.T "ui.org.teams_intro"}}</p>
+{{range $t := $.Data.Teams}}
+<section class="kad pasukan">
+  <div class="pasukan-kepala"><h3>{{$t.Name}}</h3>
+    <form action="/org/{{$.Data.Org.Name}}/urus/pasukan-padam" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="team" value="{{$t.ID}}"><button class="butang butang-kecil butang-bahaya" type="submit">{{$.T "ui.org.team_delete"}}</button></form></div>
+  <p class="meta">{{$.T "ui.org.team_people"}} {{range $i, $m := $t.Members}}{{if $i}}, {{end}}<span class="mono">{{$m}}</span>{{else}}{{$.T "ui.org.nobody"}}{{end}}</p>
+  <form class="borang-sebaris" action="/org/{{$.Data.Org.Name}}/urus/pasukan-ahli" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="team" value="{{$t.ID}}">
+    <label class="medan"><span>{{$.T "ui.org.col_person"}}</span><select name="user">{{range $.Data.Members}}<option value="{{.Name}}">{{.Name}}</option>{{end}}</select></label>
+    <label class="medan"><span>{{$.T "ui.org.op"}}</span><select name="op"><option value="add">{{$.T "ui.org.op_add"}}</option><option value="remove">{{$.T "ui.org.op_remove"}}</option></select></label>
+    <button class="butang butang-kecil" type="submit">{{$.T "ui.org.save"}}</button></form>
+  <ul class="senarai-pasukan-repo">{{range $t.Repos}}<li><span class="mono">{{.Repo}}</span> · {{$.T (printf "ui.org.role_%s" .Role)}}
+    <form class="sebaris" action="/org/{{$.Data.Org.Name}}/urus/pasukan-repo" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="team" value="{{$t.ID}}"><input type="hidden" name="repo" value="{{.RepoID}}"><input type="hidden" name="op" value="remove"><button class="butang butang-kecil" type="submit">{{$.T "ui.org.remove"}}</button></form></li>{{end}}</ul>
+  {{if $.Data.Repos}}<form class="borang-sebaris" action="/org/{{$.Data.Org.Name}}/urus/pasukan-repo" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="team" value="{{$t.ID}}">
+    <label class="medan"><span>{{$.T "ui.org.col_repo"}}</span><select name="repo">{{range $.Data.Repos}}<option value="{{.ID}}">{{.Name}}</option>{{end}}</select></label>
+    <label class="medan"><span>{{$.T "ui.org.col_role"}}</span><select name="role"><option value="read">{{$.T "ui.org.role_read"}}</option><option value="write">{{$.T "ui.org.role_write"}}</option><option value="admin">{{$.T "ui.org.role_admin"}}</option></select></label>
+    <button class="butang butang-kecil" type="submit">{{$.T "ui.org.grant"}}</button></form>{{end}}
+</section>
+{{end}}
+<form class="borang-sebaris" action="/org/{{$.Data.Org.Name}}/urus/pasukan" method="post">
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.org.team_name"}}</span><input type="text" name="name" autocapitalize="none" spellcheck="false" required></label>
+  <button class="butang butang-utama" type="submit">{{$.T "ui.org.team_create"}}</button>
+</form>
+{{template "foot" $}}

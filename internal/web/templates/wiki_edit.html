@@ -1,0 +1,23 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<h1>{{if $.Data.New}}{{$.T "ui.wiki.new"}}{{else}}{{$.T "ui.wiki.editing" $.Data.Title}}{{end}}</h1>
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+<form class="borang-kad kad borang-wiki" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{if $.Data.New}}_baharu{{else}}{{$.Data.Page}}/sunting{{end}}" method="post" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <input type="hidden" name="base" value="{{$.Data.Base}}">
+  <label class="medan"><span>{{$.T "ui.wiki.page_title"}}</span><input type="text" name="title" value="{{$.Data.Title}}" maxlength="100" required></label>
+  <label class="medan"><span>{{$.T "ui.wiki.content"}}</span><textarea name="body" rows="18" class="mono">{{$.Data.Body}}</textarea></label>
+  <p class="nota-kecil">{{$.T "ui.wiki.syntax"}}</p>
+  <label class="medan"><span>{{$.T "ui.wiki.message"}}</span><input type="text" name="message" value="{{$.Data.Message}}" maxlength="200" placeholder="{{$.T "ui.wiki.message_ph"}}"></label>
+  <div class="baris-butang">
+    <button class="butang butang-utama" type="submit">{{$.T "ui.wiki.save"}}</button>
+    <a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki{{if not $.Data.New}}/{{$.Data.Page}}{{end}}">{{$.T "ui.wiki.cancel"}}</a>
+  </div>
+</form>
+{{if and (not $.Data.New) $.Data.Base}}
+<form class="borang-sempit" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/wiki/{{$.Data.Page}}/padam" method="post">
+  <input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="base" value="{{$.Data.Base}}">
+  <button class="butang butang-bahaya" type="submit">{{$.T "ui.wiki.delete"}}</button>
+</form>
+{{end}}
+{{template "foot" $}}

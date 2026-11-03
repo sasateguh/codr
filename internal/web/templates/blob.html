@@ -1,0 +1,29 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="alat-ref">{{template "pemilih-ref" $}}</div>
+<p class="breadcrumb"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{$.Data.Ref}}">{{$.Data.Repo.Name}}</a>{{range $.Data.Crumbs}}<span class="pemisah">/</span>{{if eq .Path $.Data.Path}}<span id="laluan">{{.Name}}</span>{{else}}<a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{$.Data.Ref}}/{{.Path}}">{{.Name}}</a>{{end}}{{end}}</p>
+<div class="kotak-kod" tabindex="0">
+  <div class="kotak-kod-kepala">
+    <span class="nama">{{$.Data.Name}}</span>
+    <span class="meta">{{size $.Data.Blob.Size}}{{if $.Data.Lines}} · {{$.N "ui.blob.lines" (len $.Data.Lines)}}{{end}}</span>
+    <span class="alat">
+      {{if $.Data.IsMarkdown}}<a class="butang butang-kecil" href="?papar=kod">{{$.T "ui.repo.tab_code"}}</a>{{end}}
+      {{if and (not $.Data.Blob.Binary) (not $.Data.TooBig)}}<a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/blame/{{$.Data.Ref}}/{{$.Data.Path}}">{{$.T "ui.blob.blame"}}</a>{{end}}
+      <a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commits/{{$.Data.Ref}}/{{$.Data.Path}}">{{$.T "ui.blob.history"}}</a>
+      <a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/raw/{{$.Data.Ref}}/{{$.Data.Path}}">{{if or $.Data.Blob.Binary $.Data.TooBig}}{{$.T "ui.blob.download"}}{{else}}{{$.T "ui.blob.raw"}}{{end}}</a>
+      <button class="butang butang-kecil salin" type="button" hidden data-salin="laluan" data-disalin-teks="{{$.T "ui.repo.copied"}}">{{$.T "ui.blob.copy_path"}}</button>
+    </span>
+  </div>
+  {{if $.Data.LFS}}<div class="kosong lfs-kotak"><p><span class="lencana lencana-cermin">{{$.T "ui.lfs.badge"}}</span> {{$.T "ui.lfs.stored" (size $.Data.LFS.Size)}}</p>
+    {{if $.Data.LFSStored}}<p><a class="butang" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/raw/{{$.Data.Ref}}/{{$.Data.Path}}">{{$.T "ui.blob.download"}}</a></p>{{else}}<p class="meta">{{$.T "ui.lfs.missing"}}</p>{{end}}
+    <p class="nota-kecil mono lfs-oid">{{$.T "ui.lfs.oid" $.Data.LFS.OID}}</p></div>
+  {{else if $.Data.Blob.Binary}}<p class="kosong">{{$.T "ui.blob.binary" (size $.Data.Blob.Size)}}</p>
+  {{else if $.Data.TooBig}}<p class="kosong">{{$.T "ui.blob.too_big" (size $.Data.Blob.Size) $.Data.MaxShown}}</p>
+  {{else if $.Data.IsMarkdown}}{{if $.Data.Removed}}<p class="nota-kecil">{{$.T "ui.repo.readme_sanitised"}}</p>{{end}}<article class="prosa prosa-dalam">{{$.Data.Markdown}}</article>
+  {{else}}
+  <div class="kod">
+  {{range $.Data.Lines}}<div class="baris-kod" id="L{{.N}}"><span class="no"><a href="#L{{.N}}">{{.N}}</a></span><span class="teks">{{.HTML}}</span></div>
+  {{end}}</div>
+  {{end}}
+</div>
+{{template "foot" $}}

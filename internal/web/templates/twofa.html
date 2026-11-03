@@ -1,0 +1,28 @@
+{{template "head" $}}
+<h1>{{$.T "ui.2fa.title"}}</h1>
+{{if eq $.Data.Purpose "codes"}}
+<section class="kotak-token" aria-live="polite">
+  <p class="berjaya">{{if $.Data.On}}{{$.T "ui.2fa.codes_title"}}{{end}}</p>
+  <ol class="kod-pemulihan mono" tabindex="0">{{range $.Data.Codes}}<li>{{.}}</li>{{end}}</ol>
+  <p class="nota-kecil">{{$.T "ui.2fa.codes_once"}}</p>
+</section>
+<a class="butang butang-utama" href="/akaun#dualangkah">{{$.T "ui.2fa.done"}}</a>
+{{else if $.Data.NoKey}}
+<p class="ralat">{{$.T "ui.hook.no_key"}}</p>
+{{else}}
+<p class="meta prosa">{{$.T "ui.2fa.setup_intro"}}</p>
+<div class="dua-langkah">
+  <figure class="qr-bingkai">{{$.Data.QR}}<figcaption class="nota-kecil">{{$.T "ui.2fa.scan"}}</figcaption></figure>
+  <div class="dua-langkah-isi">
+    <p class="meta">{{$.T "ui.2fa.manual"}}</p>
+    <p class="rahsia-totp mono" tabindex="0">{{$.Data.Secret}}</p>
+    <form action="/akaun/2fa" method="post" class="borang-sempit" novalidate>
+      <input type="hidden" name="csrf" value="{{$.CSRF}}">
+      {{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+      <label class="medan"><span>{{$.T "ui.2fa.code_from_app"}}</span><input class="kod-2fa mono" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></label>
+      <button class="butang butang-utama" type="submit">{{$.T "ui.2fa.turn_on"}}</button>
+    </form>
+  </div>
+</div>
+{{end}}
+{{template "foot" $}}

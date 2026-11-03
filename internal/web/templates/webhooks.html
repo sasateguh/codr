@@ -1,0 +1,37 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="kepala-senarai">
+  <h1>{{$.T "ui.hook.title"}} <span class="kiraan">{{len $.Data.Hooks}}</span></h1>
+</div>
+<p class="meta prosa">{{$.T "ui.hook.intro"}}</p>
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+{{if $.Data.Hooks}}
+<ul class="lejar lejar-rapat lejar-hook">
+{{range $.Data.Hooks}}
+  <li class="baris">
+    <span class="baris-nama"><a class="mono" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/webhook/{{.ID}}">{{.URL}}</a>{{if not .Active}} <span class="lencana">{{$.T "ui.hook.inactive"}}</span>{{end}}</span>
+    <span class="baris-meta">{{if .LastState}}{{template "hook-keadaan" (dict "P" $ "State" .LastState)}} {{if .LastCode}}{{$.T "ui.hook.code" .LastCode}} · {{end}}{{$.Ago (parseTime .LastAt)}}{{else}}{{$.T "ui.hook.never"}}{{end}}</span>
+  </li>
+{{end}}
+</ul>
+{{else}}<p class="meta kosong-kecil">{{$.T "ui.hook.none"}}</p>{{end}}
+<form class="borang-sempit borang-kad kad" action="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/webhook" method="post" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <h2 class="kepala-bahagian">{{$.T "ui.hook.new"}}</h2>
+  {{if $.Data.NoKey}}<p class="ralat">{{$.T "ui.hook.no_key"}}</p>{{end}}
+  <label class="medan"><span>{{$.T "ui.hook.url"}}</span><input type="url" name="url" value="{{$.Data.URL}}" maxlength="2000" placeholder="https://" required autocomplete="off" inputmode="url"></label>
+  {{template "hook-peristiwa" $}}
+  <p class="nota-kecil">{{$.T "ui.hook.signing"}}</p>
+  <button class="butang butang-utama" type="submit"{{if $.Data.NoKey}} disabled{{end}}>{{$.T "ui.hook.add"}}</button>
+</form>
+{{template "foot" $}}
+
+{{define "hook-peristiwa"}}
+<fieldset class="medan pilihan">
+  <legend>{{$.T "ui.hook.events"}}</legend>
+  <p class="nota-kecil">{{$.T "ui.hook.all_hint"}}</p>
+  {{range $.Data.Kinds}}<label><input type="checkbox" name="events" value="{{.Name}}"{{if index $.Data.Checked .Name}} checked{{end}}> {{.Label}} <span class="mono lembut">{{.Name}}</span></label>{{end}}
+</fieldset>
+{{end}}
+
+{{define "hook-keadaan"}}{{if eq .State "ok"}}<span class="lencana lencana-awam">{{.P.T "ui.hook.state.ok"}}</span>{{else if eq .State "failed"}}<span class="lencana lencana-gagal">{{.P.T "ui.hook.state.failed"}}</span>{{else}}<span class="lencana lencana-cermin">{{.P.T "ui.hook.state.pending"}}</span>{{end}}{{end}}

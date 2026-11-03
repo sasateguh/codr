@@ -1,0 +1,26 @@
+{{template "head" $}}
+<div class="kepala-senarai">
+  <h1>{{$.T "ui.notify.title"}}{{if $.Data.Unread}} <span class="kiraan">{{$.Data.Unread}}</span>{{end}}</h1>
+  {{if $.Data.Unread}}<form action="/pemberitahuan/baca" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="id" value="0"><button class="butang" type="submit">{{$.T "ui.notify.mark_all"}}</button></form>{{end}}
+</div>
+<nav class="tab tab-kecil" aria-label="{{$.T "ui.notify.title"}}">
+  <a href="/pemberitahuan"{{if not $.Data.All}} aria-current="page"{{end}}>{{$.T "ui.notify.unread"}}</a>
+  <a href="/pemberitahuan?semua=1"{{if $.Data.All}} aria-current="page"{{end}}>{{$.T "ui.notify.everything"}}</a>
+</nav>
+{{if $.Data.Items}}
+<ul class="lejar lejar-pemberitahuan">
+{{range $.Data.Items}}
+  <li class="pemberitahuan{{if not .Read}} belum-baca{{end}}">
+    <a class="pemberitahuan-pautan" href="/pemberitahuan/{{.ID}}">
+      <span class="pemberitahuan-repo mono">{{.Owner}}/{{.Repo}} <span class="lembut">{{if eq .Thread "pull"}}{{$.T "ui.notify.pull" .Number}}{{else}}{{$.T "ui.notify.issue" .Number}}{{end}}</span></span>
+      <span class="pemberitahuan-tajuk">{{.Title}}</span>
+      <span class="meta">{{if .Actor}}<span class="mono">{{.Actor}}</span> {{end}}{{$.T (index $.Data.Phrase .LastAction)}} · {{$.T (index $.Data.Why .Reason)}} · {{$.Ago (parseTime .UpdatedAt)}}</span>
+      {{if .Excerpt}}<span class="pemberitahuan-petikan">{{.Excerpt}}</span>{{end}}
+    </a>
+    {{if not .Read}}<form action="/pemberitahuan/baca" method="post"><input type="hidden" name="csrf" value="{{$.CSRF}}"><input type="hidden" name="id" value="{{.ID}}"><button class="butang butang-kecil" type="submit">{{$.T "ui.notify.mark_one"}}</button></form>{{end}}
+  </li>
+{{end}}
+</ul>
+{{else}}<p class="kosong meta">{{if $.Data.All}}{{$.T "ui.notify.none"}}{{else}}{{$.T "ui.notify.none_unread"}}{{end}}</p>{{end}}
+<p class="nota-kecil">{{$.T "ui.notify.hint"}}</p>
+{{template "foot" $}}

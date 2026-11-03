@@ -1,0 +1,30 @@
+{{template "head" $}}
+<h1>{{$.T "ui.ai.title"}}</h1>
+<p class="meta prosa">{{$.T "ui.ai.intro"}}</p>
+{{if $.Data.NoKey}}<p class="ralat" role="alert">{{$.T "ui.cloud.no_secret_key"}}</p>{{end}}
+{{if $.Data.Error}}<p class="ralat" role="alert">{{$.Data.Error}}</p>{{end}}
+<form action="/admin/ai" method="post" class="borang-sempit" novalidate>
+  <input type="hidden" name="csrf" value="{{$.CSRF}}">
+  <label class="medan"><span>{{$.T "ui.ai.endpoint"}}</span><input type="url" name="endpoint" value="{{$.Data.Config.Endpoint}}" placeholder="https://api.openai.com/v1" autocapitalize="none" spellcheck="false"></label>
+  <p class="nota-kecil">{{$.T "ui.ai.endpoint_hint"}}</p>
+  <label class="medan"><span>{{$.T "ui.ai.model"}}</span><input type="text" name="model" value="{{$.Data.Config.Model}}" autocapitalize="none" spellcheck="false"></label>
+  <label class="medan"><span>{{$.T "ui.ai.key"}}</span><input type="password" name="key" value="" autocomplete="new-password" placeholder="{{if $.Data.HasKey}}{{$.T "ui.cloud.secret_kept"}}{{end}}"></label>
+  {{if $.Data.HasKey}}<fieldset class="medan pilihan"><legend>{{$.T "ui.ai.key_stored"}}</legend><label><input type="checkbox" name="clear_key" value="1"> {{$.T "ui.ai.key_clear"}}</label></fieldset>{{end}}
+  <div class="medan-dua">
+    <label class="medan"><span>{{$.T "ui.ai.max_diff"}}</span><input type="number" name="max_diff_kb" min="4" max="2048" value="{{$.Data.Config.MaxDiffKB}}"></label>
+    <label class="medan"><span>{{$.T "ui.ai.timeout"}}</span><input type="number" name="timeout_seconds" min="5" max="600" value="{{$.Data.Config.TimeoutSeconds}}"></label>
+  </div>
+  <fieldset class="medan pilihan">
+    <legend>{{$.T "ui.ai.switch"}}</legend>
+    <label><input type="checkbox" name="enabled" value="1"{{if $.Data.Config.Enabled}} checked{{end}}> {{$.T "ui.ai.enabled"}}</label>
+  </fieldset>
+  <fieldset class="medan pilihan senarai-repo-ai">
+    <legend>{{$.T "ui.ai.repos"}}</legend>
+    <p class="nota-kecil">{{$.T "ui.ai.repos_hint"}}</p>
+    {{range $.Data.Repos}}<label><input type="checkbox" name="repo" value="{{.ID}}"{{if index $.Data.On .ID}} checked{{end}}> <span class="mono">{{.Owner}}/{{.Name}}</span>{{if .Private}} <span class="lencana lencana-kunci">{{$.T "ui.badge.private"}}</span>{{end}}</label>{{end}}
+  </fieldset>
+  <button class="butang butang-utama" type="submit"{{if $.Data.NoKey}} disabled{{end}}>{{$.T "ui.cloud.save"}}</button>
+</form>
+<h2 class="kepala-bahagian">{{$.T "ui.ai.prompts"}}</h2>
+<p class="meta prosa">{{$.T "ui.ai.prompts_hint"}}</p>
+{{template "foot" $}}

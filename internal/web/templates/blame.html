@@ -1,0 +1,22 @@
+{{template "head" $}}
+{{template "repo-kepala" $}}
+<div class="alat-ref">{{template "pemilih-ref" $}}</div>
+<p class="breadcrumb"><a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{$.Data.Ref}}">{{$.Data.Repo.Name}}</a>{{range $.Data.Crumbs}}<span class="pemisah">/</span>{{if eq .Path $.Data.Path}}<span id="laluan">{{.Name}}</span>{{else}}<a href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/tree/{{$.Data.Ref}}/{{.Path}}">{{.Name}}</a>{{end}}{{end}}</p>
+<div class="kotak-kod blame" tabindex="0">
+  <div class="kotak-kod-kepala">
+    <span class="nama">{{$.Data.Name}}</span>
+    <span class="meta">{{$.T "ui.blame.label"}}{{if $.Data.Rows}} · {{$.T "ui.blob.lines" (len $.Data.Rows)}}{{end}}</span>
+    <span class="alat">
+      <a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/blob/{{$.Data.Ref}}/{{$.Data.Path}}">{{$.T "ui.repo.tab_code"}}</a>
+      <a class="butang butang-kecil" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commits/{{$.Data.Ref}}/{{$.Data.Path}}">{{$.T "ui.blob.history"}}</a>
+    </span>
+  </div>
+  {{if $.Data.Blob.Binary}}<p class="kosong">{{$.T "ui.blob.binary" (size $.Data.Blob.Size)}}</p>
+  {{else if $.Data.TooBig}}<p class="kosong">{{$.T "ui.blob.too_big" (size $.Data.Blob.Size) $.Data.MaxShown}}</p>
+  {{else}}
+  <div class="kod">
+  {{range $.Data.Rows}}<div class="baris-kod{{if .First}} mula{{end}}" id="L{{.N}}"><span class="siapa">{{if .First}}<a class="mono" href="/{{$.Data.Repo.Owner}}/{{$.Data.Repo.Name}}/commit/{{.Hash}}" title="{{.Summary}}">{{.Short}}</a> <span class="pengarang">{{.Author}}</span> <time datetime="{{.When}}" class="bila">{{.Ago}}</time>{{end}}</span><span class="no"><a href="#L{{.N}}">{{.N}}</a></span><span class="teks">{{.HTML}}</span></div>
+  {{end}}</div>
+  {{end}}
+</div>
+{{template "foot" $}}
