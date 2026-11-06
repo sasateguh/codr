@@ -4,6 +4,16 @@ Codr was developed in a private repository from 12 October 2026 and has hosted i
 (14 October 2026). This public repository starts at v2.29.0 as one squashed commit; the versions before it are listed
 here only as a summary.
 
+## v2.30.2
+
+- A second `codr serve` on the same data directory now fails at start with a clear message instead of replacing the
+  live hook socket. Before, the running server kept listening on a socket that no longer had a name, and every push
+  that carried commits was rejected with "hook failed".
+- `serve` closes the hook socket when it stops on a later start-up error, so it no longer leaves a dead socket file.
+- `/healthz` dials the hook socket: a dead hook path answers 503 with `"ok":false,"hooks":"down"`; a live one adds
+  `"hooks":"ok"`. `codr doctor` also dials the socket instead of only checking that the file exists.
+- A failed hook call prints its cause on a second line, and the server logs requests it cannot decode.
+
 ## v2.30.1
 
 - A binary built with `go install` reports its module version and commit instead of `dev`.

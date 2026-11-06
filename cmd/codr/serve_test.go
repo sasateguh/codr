@@ -257,6 +257,13 @@ func TestServeEndToEnd(t *testing.T) {
 	if out := cli("", 0, "doctor"); !strings.Contains(out, "serve is running") || !strings.Contains(out, "all ") || strings.Contains(out, "FAIL") {
 		t.Fatalf("doctor: %s", out)
 	}
+	// a second serve on the same data dir stops early and leaves the live hook socket alone (5 Nov 2026)
+	if out := cli("", 1, "serve"); !strings.Contains(out, "already running on hook socket") {
+		t.Fatalf("second serve: %s", out)
+	}
+	if o, err := git(work, "push", "-q", "ssh://git@"+host+":"+port+"/alice/cermin.git", "main:y"); err != nil {
+		t.Fatalf("push after a second serve was refused: %v %s", err, o)
+	}
 	// revoke the token: the next push is 401
 	ls := cli("", 0, "admin", "token", "ls", "alice")
 	id := regexp.MustCompile(`(?m)^(\d+)  laptop`).FindStringSubmatch(ls)

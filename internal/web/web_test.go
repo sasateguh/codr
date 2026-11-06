@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/netip"
@@ -193,6 +194,23 @@ func TestHealthzAndNoPage(t *testing.T) {
 	if code != 200 || !strings.Contains(body, `"ok":true`) {
 		t.Fatalf("healthz %d %s", code, body)
 	}
+	if !strings.Contains(body, `"hooks":"ok"`) {
+		t.Fatalf("healthz must report the hook socket: %s", body)
+	}
+	// the hook socket's file outlives its listener (5 Nov 2026): pages load, every push fails
+	sock := h.s.Git.HookSocket
+	h.s.Git.HookSocket = filepath.Join(filepath.Dir(sock), "dead.sock")
+	dead, err := net.Listen("unix", h.s.Git.HookSocket)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dead.(*net.UnixListener).SetUnlinkOnClose(false)
+	dead.Close()
+	code, body = h.get("/healthz", "", "")
+	if code != 503 || !strings.Contains(body, `"hooks":"down"`) || !strings.Contains(body, `"ok":false`) {
+		t.Fatalf("healthz with a dead hook socket: %d %s", code, body)
+	}
+	h.s.Git.HookSocket = sock
 	code, body = h.get("/", "", "ms")
 	if code != 200 || !strings.Contains(body, "Belum ada repo") {
 		t.Fatalf("root %d %s", code, body)

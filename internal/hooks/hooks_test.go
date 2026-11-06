@@ -44,6 +44,10 @@ func TestPreReceiveFailsClosedWhenServeIsDown(t *testing.T) {
 	if code := RunHook("pre-receive", strings.NewReader("a b refs/heads/main\n"), &errb, get); code != 1 || !strings.Contains(errb.String(), "hook failed") {
 		t.Fatalf("pre-receive must fail closed: %d %q", code, errb.String())
 	}
+	// the cause travels to the pusher's terminal and the hos log (tolak-codr), not just "hook failed"
+	if !strings.Contains(errb.String(), "Codr: cause: dial unix") || !strings.Contains(errb.String(), "no such file") {
+		t.Fatalf("pre-receive must print why: %q", errb.String())
+	}
 	if code := RunHook("post-receive", strings.NewReader("a b refs/heads/main\n"), &errb, get); code != 0 {
 		t.Fatal("post-receive must never block")
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	"codr.my/codr/internal/config"
+	"codr.my/codr/internal/hooks"
 	"codr.my/codr/internal/lfs"
 	"codr.my/codr/internal/store"
 )
@@ -108,11 +110,7 @@ func (c *cli) cmdDoctor(args []string) error {
 	if filepath.Dir(sock) != cfg.DataDir() {
 		d.line("warn", "doctor.socket_long", sock)
 	}
-	if fi, err := os.Stat(sock); err == nil && fi.Mode()&os.ModeSocket != 0 {
-		d.line("ok", "doctor.socket", sock, c.t("doctor.serve_up"))
-	} else {
-		d.line("warn", "doctor.serve_down")
-	}
+	d.socket(sock)
 
 	if cfg.Auth.SecretKey == "" {
 		d.line("warn", "doctor.secret_missing")
@@ -258,6 +256,19 @@ func reaperState(proc string) (string, int, error) {
 }
 
 // webhooks: a line only when webhooks exist (D78); deliveries that failed for good in the last day are a warning.
+// socket dials the hook socket: a file alone is not a running serve (5 Nov 2026, the file outlived its listener).
+func (d *doctor) socket(sock string) {
+	err := hooks.Probe(sock)
+	switch {
+	case err == nil:
+		d.line("ok", "doctor.socket", sock, d.t("doctor.serve_up"))
+	case errors.Is(err, fs.ErrNotExist):
+		d.line("warn", "doctor.serve_down")
+	default:
+		d.line("fail", "doctor.socket_dead", sock, err.Error())
+	}
+}
+
 func (d *doctor) webhooks(ctx context.Context, st *store.Store) {
 	active, failed, err := st.WebhookHealth(ctx, time.Now().UTC().Add(-24*time.Hour).Format("2006-01-02T15:04:05.000Z"))
 	switch {

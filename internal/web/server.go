@@ -18,6 +18,7 @@ import (
 
 	"codr.my/codr/internal/cloud"
 	"codr.my/codr/internal/gitcmd"
+	"codr.my/codr/internal/hooks"
 	"codr.my/codr/internal/i18n"
 	"codr.my/codr/internal/lfs"
 	"codr.my/codr/internal/mirror"
@@ -152,7 +153,17 @@ func (s *Server) healthz(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"ok": false})
 		return
 	}
-	_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "version": version.String(), "schema": v})
+	body := map[string]any{"ok": true, "version": version.String(), "schema": v}
+	// A push needs serve's hook socket; a dead one rejects every push while pages still load (5 Nov 2026).
+	if sock := s.Git.HookSocket; sock != "" {
+		body["hooks"] = "ok"
+		if err := hooks.Probe(sock); err != nil {
+			s.Log.Warn("healthz: hook socket", "path", sock, "err", err)
+			body["ok"], body["hooks"] = false, "down"
+			w.WriteHeader(http.StatusServiceUnavailable)
+		}
+	}
+	_ = json.NewEncoder(w).Encode(body)
 }
 
 // lang picks the response language: the authenticated user's, else Accept-Language,

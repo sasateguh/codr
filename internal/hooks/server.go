@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"codr.my/codr/internal/i18n"
@@ -33,12 +34,41 @@ type Server struct {
 	wg sync.WaitGroup
 }
 
-// Listen creates the Unix socket (0600, replacing a stale file).
+// ProbeTimeout bounds one dial of the hook socket by Listen, Probe, /healthz and doctor. A live
+// server accepts in microseconds; the bound only matters when the path is wedged.
+const ProbeTimeout = time.Second
+
+// ErrSocketBusy means another server still answers on the socket path: a second `codr serve`
+// on the same data dir must stop instead of stealing the path from the live one.
+var ErrSocketBusy = errors.New("hooks: socket is in use by a running server")
+
+// Probe dials the socket once and hangs up: nil when a server is listening there.
+func Probe(path string) error {
+	c, err := net.DialTimeout("unix", path, ProbeTimeout)
+	if err != nil {
+		return err
+	}
+	return c.Close()
+}
+
+// Listen creates the Unix socket (0600). A file left by a dead server is replaced; a path where a
+// server still answers is left alone and ErrSocketBusy is returned. Removing it blindly let a second
+// serve orphan the live server's socket and every push failed "hook failed" (5 Nov 2026).
 func Listen(path string) (net.Listener, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return nil, err
 	}
-	_ = os.Remove(path)
+	switch err := Probe(path); {
+	case err == nil, errors.Is(err, syscall.EAGAIN):
+		return nil, ErrSocketBusy // EAGAIN: alive, its accept queue is just full
+	case errors.Is(err, syscall.ECONNREFUSED): // a socket file nobody listens on
+		if err := os.Remove(path); err != nil {
+			return nil, err
+		}
+	case errors.Is(err, fs.ErrNotExist):
+	default:
+		return nil, err
+	}
 	ln, err := net.Listen("unix", path)
 	if err != nil {
 		return nil, err
@@ -72,6 +102,9 @@ func (s *Server) Serve(ctx context.Context, ln net.Listener) error {
 			_ = c.SetDeadline(time.Now().Add(60 * time.Second))
 			var req Request
 			if err := json.NewDecoder(io.LimitReader(c, 1<<20)).Decode(&req); err != nil {
+				if !errors.Is(err, io.EOF) { // EOF = a Probe (healthz, doctor) hanging up, not a broken hook
+					s.Log.Warn("hook: bad request", "err", err)
+				}
 				return
 			}
 			resp := s.Handle(ctx, req)

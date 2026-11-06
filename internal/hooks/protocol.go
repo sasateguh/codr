@@ -104,6 +104,7 @@ func RunHook(name string, stdin io.Reader, stderr io.Writer, getenv func(string)
 	refs, err := ParseRefs(stdin)
 	if err != nil {
 		fmt.Fprintln(stderr, i18n.T(lang, "hook.internal"))
+		fmt.Fprintln(stderr, i18n.T(lang, "hook.internal_cause", err.Error()))
 		return 1
 	}
 	repoID, _ := strconv.ParseInt(getenv("CODR_REPO_ID"), 10, 64)
@@ -119,7 +120,9 @@ func RunHook(name string, stdin io.Reader, stderr io.Writer, getenv func(string)
 		if name == "post-receive" {
 			return 0
 		}
+		// the second line is what an operator needs: "connection refused" = serve is not on this socket
 		fmt.Fprintln(stderr, i18n.T(lang, "hook.internal"))
+		fmt.Fprintln(stderr, i18n.T(lang, "hook.internal_cause", err.Error()))
 		return 1
 	}
 	if !resp.OK {

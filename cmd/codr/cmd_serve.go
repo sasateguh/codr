@@ -162,9 +162,15 @@ func (c *cli) cmdServe(args []string) error {
 
 	hookSrv := &hooks.Server{Store: st, Disk: disk, GitBinary: cfg.Git.Binary, Log: logger}
 	hookLn, err := hooks.Listen(cfg.HookSocket())
+	if errors.Is(err, hooks.ErrSocketBusy) {
+		return fmt.Errorf("%s", c.t("serve.hook_busy", cfg.HookSocket()))
+	}
 	if err != nil {
 		return err
 	}
+	// Closing unlinks the socket file, so no early return below (port taken, bad config) leaves a
+	// dead socket behind for the next serve or a running hook to trip over. Serve closes it too; twice is harmless.
+	defer hookLn.Close()
 	sshSrv := &sshd.Server{Store: st, Disk: disk, Git: git, HostKey: hostKey, MaxAuthTries: cfg.Auth.SSHMaxAuthTries,
 		ExecWait: time.Duration(cfg.Server.SSHExecWaitSeconds) * time.Second, MaxInputBytes: maxInput, Log: logger}
 	sshLn, err := net.Listen("tcp", cfg.Server.SSHAddr)
@@ -264,6 +270,5 @@ func (c *cli) cmdServe(args []string) error {
 			first = err
 		}
 	}
-	_ = os.Remove(cfg.HookSocket())
 	return first
 }
