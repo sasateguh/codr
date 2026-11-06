@@ -4,6 +4,11 @@ Codr was developed in a private repository from 12 October 2026 and has hosted i
 (14 October 2026). This public repository starts at v2.29.0 as one squashed commit; the versions before it are listed
 here only as a summary.
 
+## v2.30.3
+
+- README ends with a "Work with Sasa Teguh" section: how to book a call with the studio that maintains Codr.
+- The `tolak-codr` test isolates its git configuration from the machine it runs on.
+
 ## v2.30.2
 
 - A second `codr serve` on the same data directory now fails at start with a clear message instead of replacing the

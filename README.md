@@ -110,3 +110,11 @@ changes with them under the same licence. For other terms, write to admin@sasate
 Made by [Aiman Malib](https://aimanmalib.com) at [Sasa Teguh](https://sasateguh.com), Malaysia. Codr was developed in a
 private repository from October 2026 and has hosted its author's own code since then; this public repository starts at
 v2.29.0 with one squashed commit, so the history before that is not here. See the [changelog](CHANGELOG.md).
+
+## Work with Sasa Teguh
+
+[![Work with Sasa Teguh: book a call](https://raw.githubusercontent.com/sasateguh/.github/main/assets/work-with-sasa-teguh.png)](https://sasateguh.com/book)
+
+This project is built and maintained by [Sasa Teguh](https://sasateguh.com), a studio in Malaysia. We build websites that are found on Google and in AI answers, and we set up systems like this one for businesses.
+
+[Book a call](https://sasateguh.com/book) · hello@sasateguh.com · [More from Sasa Teguh](https://github.com/sasateguh)
